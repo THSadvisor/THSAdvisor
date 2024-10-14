@@ -14,7 +14,7 @@
         .container {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             gap: 50px;
         }
         .module {
@@ -23,6 +23,7 @@
             background-color: #1E1E1E;
             border: 1px solid #333;
             border-radius: 10px;
+            min-height: 500px; /* Hauteur minimale pour rendre les modules symétriques */
         }
         label {
             display: block;
@@ -61,11 +62,10 @@
             font-weight: bold;
             color: #FF69B4;
             margin-top: 20px;
-            text-align: center; /* Centre horizontalement */
+            text-align: center;
+            width: 100%;
             position: absolute;
-            width: 100%; /* Occupe toute la largeur */
-            top: 50%; /* Centre verticalement */
-            transform: translateY(-50%); /* Ajuste le placement */
+            bottom: 10px; /* Décale l'avertissement vers le bas */
         }
     </style>
 </head>
@@ -108,7 +108,7 @@
         </div>
     </div>
 
-    <p id="asterisk-note" class="note"></p>
+    <p id="asterisk-note" class="note">*Exemple d'objectif biologique, à adapter bien sûr au cas par cas et à la clinique.</p>
 
     <script>
         // Fonction pour supprimer les décimales nulles
@@ -149,9 +149,6 @@
                 <p>nmol/L : ${formatNumber(nmolPerL)}</p>
                 <p>ng/dL : ${formatNumber(ngPerDl)}</p>
             `;
-
-            // Afficher l'astérisque
-            document.getElementById('asterisk-note').innerText = "*Exemple d'objectif biologique, à adapter bien sûr au cas par cas et à la clinique.";
         }
 
         // Convertir Œstradiol
@@ -180,9 +177,6 @@
                 <p>pg/dL : ${formatNumber(pgPerDl)}</p>
                 <p>ng/L : ${formatNumber(ngPerL)}</p>
             `;
-
-            // Afficher l'astérisque
-            document.getElementById('asterisk-note').innerText = "*Exemple d'objectif biologique, à adapter bien sûr au cas par cas et à la clinique.";
         }
     </script>
 </body>
