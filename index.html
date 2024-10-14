@@ -23,7 +23,10 @@
             background-color: #1E1E1E;
             border: 1px solid #333;
             border-radius: 10px;
-            min-height: 500px; /* Hauteur minimale pour rendre les modules symétriques */
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Aligne le contenu du tableau */
         }
         label {
             display: block;
@@ -65,7 +68,20 @@
             text-align: center;
             width: 100%;
             position: absolute;
-            bottom: 10px; /* Décale l'avertissement vers le bas */
+            bottom: 10px;
+            display: none; /* Cache par défaut */
+            animation: clignote 1s infinite alternate; /* Clignotement lent */
+        }
+        @keyframes clignote {
+            from { opacity: 1; }
+            to { opacity: 0.3; }
+        }
+        .flex-row {
+            display: flex;
+            justify-content: space-between;
+        }
+        .flex-row > div {
+            flex: 1;
         }
     </style>
 </head>
@@ -116,6 +132,12 @@
             return (value % 1 === 0) ? value.toString() : value.toFixed(6).replace(/\.?0+$/, "");
         }
 
+        // Afficher et faire clignoter l'astérisque
+        function showAsterisk() {
+            const asteriskNote = document.getElementById('asterisk-note');
+            asteriskNote.style.display = 'block'; // Affiche l'astérisque
+        }
+
         // Convertir Testostérone
         function convertTestosterone() {
             const value = parseFloat(document.getElementById('testosterone').value);
@@ -149,6 +171,8 @@
                 <p>nmol/L : ${formatNumber(nmolPerL)}</p>
                 <p>ng/dL : ${formatNumber(ngPerDl)}</p>
             `;
+            
+            showAsterisk(); // Affiche l'astérisque après la conversion
         }
 
         // Convertir Œstradiol
@@ -177,7 +201,10 @@
                 <p>pg/dL : ${formatNumber(pgPerDl)}</p>
                 <p>ng/L : ${formatNumber(ngPerL)}</p>
             `;
+
+            showAsterisk(); // Affiche l'astérisque après la conversion
         }
     </script>
 </body>
 </html>
+
