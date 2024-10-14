@@ -18,7 +18,7 @@
             gap: 50px;
         }
         .module {
-            width: 350px; /* Élargi à 350px pour éviter la coupure de ligne */
+            width: 350px; /* Largeur ajustée */
             padding: 20px;
             background-color: #1E1E1E;
             border: 1px solid #333;
@@ -56,6 +56,7 @@
             padding: 10px;
             background-color: #1E1E1E;
             border: 1px solid #333;
+            min-height: 120px; /* Hauteur minimale pour éviter les décalages */
         }
         .highlight {
             font-weight: bold;
@@ -64,6 +65,7 @@
         .note {
             font-weight: bold;
             color: #FF69B4;
+            font-size: 1.2em; /* Taille de police plus grande */
             margin-top: 20px;
             text-align: center;
             width: 100%;
@@ -94,7 +96,6 @@
                 <option value="ng/L">ng/L</option>
                 <option value="µg/L">µg/L</option>
             </select>
-            
             <button onclick="convertTestosterone()">Convert</button>
             <div id="testosterone-result" class="result"></div>
         </div>
@@ -109,6 +110,7 @@
             <select id="oestradiol-unit">
                 <option value="pmol/L">pmol/L</option>
                 <option value="pg/dL">pg/dL</option>
+                <option value="pg/mL">pg/mL</option>
                 <option value="ng/L">ng/L</option>
             </select>
             
@@ -124,7 +126,6 @@
         function formatNumber(value) {
             return (value % 1 === 0) ? value.toString() : value.toFixed(6).replace(/\.?0+$/, "");
         }
-
         // Afficher et faire clignoter l'astérisque
         function showAsterisk() {
             const asteriskNote = document.getElementById('asterisk-note');
@@ -149,7 +150,6 @@
             } else if (unit === "µg/L") {
                 ngPerMl = value * 1000;
             }
-
             // Calcul des autres unités
             ngPerL = ngPerMl * 1000;
             ugPerL = ngPerL / 1000;
@@ -173,11 +173,13 @@
             const value = parseFloat(document.getElementById('oestradiol').value);
             const unit = document.getElementById('oestradiol-unit').value;
             let pgPerMl, pmolPerL, pgPerDl, ngPerL;
-
+            // Conversion de la valeur d'origine
             if (unit === "pmol/L") {
                 pgPerMl = value * 0.272;  // 1 pmol/L = 0.272 pg/mL
             } else if (unit === "pg/dL") {
                 pgPerMl = value / 100;    // 1 pg/dL = 0.01 pg/mL
+            } else if (unit === "pg/mL") {
+                pgPerMl = value;
             } else if (unit === "ng/L") {
                 pgPerMl = value * 1;      // 1 ng/L = 1 pg/mL
             }
