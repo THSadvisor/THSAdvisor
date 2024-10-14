@@ -6,7 +6,9 @@
     <title>Convertisseur Hormonal</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: monospace;
+            background-color: #121212;
+            color: #FFFFFF;
             margin: 20px;
         }
         .container {
@@ -21,18 +23,40 @@
             width: 100%;
             padding: 5px;
             margin-top: 5px;
+            background-color: #333;
+            color: #FFF;
+            border: 1px solid #666;
+        }
+        select {
+            width: 100%;
+            padding: 5px;
+            background-color: #333;
+            color: #FFF;
+            border: 1px solid #666;
+            margin-top: 5px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #FFF;
+            border: none;
+            cursor: pointer;
+            width: 100%;
         }
         .result {
             margin-top: 20px;
             padding: 10px;
-            background-color: #f1f1f1;
+            background-color: #1E1E1E;
+            border: 1px solid #333;
         }
         .highlight {
             font-weight: bold;
+            color: #00A0FF;
         }
         .note {
             font-size: 0.9em;
-            color: #666;
+            color: #999;
         }
     </style>
 </head>
@@ -74,6 +98,11 @@
     </div>
 
     <script>
+        // Fonction pour supprimer les décimales nulles
+        function formatNumber(value) {
+            return (value % 1 === 0) ? value.toString() : value.toFixed(6).replace(/\.?0+$/, "");
+        }
+
         // Convertir Testostérone
         function convertTestosterone() {
             const value = parseFloat(document.getElementById('testosterone').value);
@@ -103,13 +132,13 @@
             nmolPerL = ngPerMl / 0.288;
             ngPerDl = ngPerMl * 100;
 
-            // Affichage du résultat
+            // Affichage du résultat avec suppression des décimales nulles
             document.getElementById('testosterone-result').innerHTML = `
-                <p><span class="highlight">ng/mL : ${ngPerMl.toFixed(6)} (Objectif THSm : 2.5 - 9 ng/mL ; Objectif THSf : < 0.5 ng/mL*)</span></p>
-                <p>ng/L : ${ngPerL.toFixed(6)}</p>
-                <p>µg/L : ${ugPerL.toFixed(6)}</p>
-                <p>nmol/L : ${nmolPerL.toFixed(6)}</p>
-                <p>ng/dL : ${ngPerDl.toFixed(6)}</p>
+                <p><span class="highlight">ng/mL : ${formatNumber(ngPerMl)} (Objectif THSm : 2.5 - 9 ng/mL ; Objectif THSf : < 0.5 ng/mL*)</span></p>
+                <p>ng/L : ${formatNumber(ngPerL)}</p>
+                <p>µg/L : ${formatNumber(ugPerL)}</p>
+                <p>nmol/L : ${formatNumber(nmolPerL)}</p>
+                <p>ng/dL : ${formatNumber(ngPerDl)}</p>
             `;
 
             // Afficher l'astérisque
@@ -136,12 +165,12 @@
             pgPerDl = pgPerMl * 100;
             ngPerL = pgPerMl / 1;
 
-            // Affichage du résultat
+            // Affichage du résultat avec suppression des décimales nulles
             document.getElementById('oestradiol-result').innerHTML = `
-                <p><span class="highlight">pg/mL : ${pgPerMl.toFixed(6)} (Objectif THSf : 100-400 pg/mL*)</span></p>
-                <p>pmol/L : ${pmolPerL.toFixed(6)}</p>
-                <p>pg/dL : ${pgPerDl.toFixed(6)}</p>
-                <p>ng/L : ${ngPerL.toFixed(6)}</p>
+                <p><span class="highlight">pg/mL : ${formatNumber(pgPerMl)} (Objectif THSf : 100-400 pg/mL*)</span></p>
+                <p>pmol/L : ${formatNumber(pmolPerL)}</p>
+                <p>pg/dL : ${formatNumber(pgPerDl)}</p>
+                <p>ng/L : ${formatNumber(ngPerL)}</p>
             `;
 
             // Afficher l'astérisque
