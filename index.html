@@ -12,28 +12,30 @@
             margin: 20px;
         }
         .container {
-            max-width: 600px;
-            margin: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+        }
+        .module {
+            max-width: 300px;
+            padding: 20px;
+            background-color: #1E1E1E;
+            border: 1px solid #333;
+            border-radius: 10px;
         }
         label {
             display: block;
             margin-top: 10px;
         }
-        input {
+        input, select {
             width: 100%;
             padding: 5px;
             margin-top: 5px;
             background-color: #333;
             color: #FFF;
             border: 1px solid #666;
-        }
-        select {
-            width: 100%;
-            padding: 5px;
-            background-color: #333;
-            color: #FFF;
-            border: 1px solid #666;
-            margin-top: 5px;
+            font-family: monospace;
         }
         button {
             margin-top: 10px;
@@ -43,6 +45,7 @@
             border: none;
             cursor: pointer;
             width: 100%;
+            font-family: monospace;
         }
         .result {
             margin-top: 20px;
@@ -55,47 +58,57 @@
             color: #00A0FF;
         }
         .note {
-            font-size: 0.9em;
-            color: #999;
+            font-weight: bold;
+            color: #FF69B4;
+            margin-top: 20px;
+            text-align: center; /* Centre horizontalement */
+            position: absolute;
+            width: 100%; /* Occupe toute la largeur */
+            top: 50%; /* Centre verticalement */
+            transform: translateY(-50%); /* Ajuste le placement */
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Convertisseur de Testostérone</h2>
-        <label for="testosterone">Valeur de testostérone :</label>
-        <input type="number" id="testosterone" placeholder="Entrez la valeur">
-        
-        <label for="testosterone-unit">Unité :</label>
-        <select id="testosterone-unit">
-            <option value="nmol/L">nmol/L</option>
-            <option value="ng/dL">ng/dL</option>
-            <option value="ng/mL">ng/mL</option>
-            <option value="ng/L">ng/L</option>
-            <option value="µg/L">µg/L</option>
-        </select>
-        
-        <button onclick="convertTestosterone()">Convertir</button>
+        <!-- Module Testostérone -->
+        <div class="module">
+            <h2>Convertisseur de Testostérone</h2>
+            <label for="testosterone">Valeur de testostérone :</label>
+            <input type="number" id="testosterone" placeholder="Entrez la valeur">
+            
+            <label for="testosterone-unit">Unité :</label>
+            <select id="testosterone-unit">
+                <option value="nmol/L">nmol/L</option>
+                <option value="ng/dL">ng/dL</option>
+                <option value="ng/mL">ng/mL</option>
+                <option value="ng/L">ng/L</option>
+                <option value="µg/L">µg/L</option>
+            </select>
+            
+            <button onclick="convertTestosterone()">Convert</button>
+            <div id="testosterone-result" class="result"></div>
+        </div>
 
-        <div id="testosterone-result" class="result"></div>
-        
-        <h2>Convertisseur d'Œstradiol</h2>
-        <label for="oestradiol">Valeur d'oestradiol :</label>
-        <input type="number" id="oestradiol" placeholder="Entrez la valeur">
-        
-        <label for="oestradiol-unit">Unité :</label>
-        <select id="oestradiol-unit">
-            <option value="pmol/L">pmol/L</option>
-            <option value="pg/dL">pg/dL</option>
-            <option value="ng/L">ng/L</option>
-        </select>
-        
-        <button onclick="convertOestradiol()">Convertir</button>
-
-        <div id="oestradiol-result" class="result"></div>
-
-        <p id="asterisk-note" class="note"></p>
+        <!-- Module Oestradiol -->
+        <div class="module">
+            <h2>Convertisseur d'Œstradiol</h2>
+            <label for="oestradiol">Valeur d'oestradiol :</label>
+            <input type="number" id="oestradiol" placeholder="Entrez la valeur">
+            
+            <label for="oestradiol-unit">Unité :</label>
+            <select id="oestradiol-unit">
+                <option value="pmol/L">pmol/L</option>
+                <option value="pg/dL">pg/dL</option>
+                <option value="ng/L">ng/L</option>
+            </select>
+            
+            <button onclick="convertOestradiol()">Convert</button>
+            <div id="oestradiol-result" class="result"></div>
+        </div>
     </div>
+
+    <p id="asterisk-note" class="note"></p>
 
     <script>
         // Fonction pour supprimer les décimales nulles
@@ -111,18 +124,14 @@
 
             // Conversion de la valeur d'origine
             if (unit === "nmol/L") {
-                // 1 nmol/L = 0.288 ng/mL
                 ngPerMl = value * 0.288;
             } else if (unit === "ng/dL") {
-                // 1 ng/dL = 0.01 ng/mL
                 ngPerMl = value * 0.01;
             } else if (unit === "ng/mL") {
                 ngPerMl = value;
             } else if (unit === "ng/L") {
-                // 1 ng/L = 0.001 ng/mL
                 ngPerMl = value / 1000;
             } else if (unit === "µg/L") {
-                // 1 µg/L = 1 ng/mL
                 ngPerMl = value * 1000;
             }
 
@@ -132,7 +141,7 @@
             nmolPerL = ngPerMl / 0.288;
             ngPerDl = ngPerMl * 100;
 
-            // Affichage du résultat avec suppression des décimales nulles
+            // Affichage du résultat
             document.getElementById('testosterone-result').innerHTML = `
                 <p><span class="highlight">ng/mL : ${formatNumber(ngPerMl)} (Objectif THSm : 2.5 - 9 ng/mL ; Objectif THSf : < 0.5 ng/mL*)</span></p>
                 <p>ng/L : ${formatNumber(ngPerL)}</p>
@@ -151,7 +160,6 @@
             const unit = document.getElementById('oestradiol-unit').value;
             let pgPerMl, pmolPerL, pgPerDl, ngPerL;
 
-            // Conversion de la valeur d'origine
             if (unit === "pmol/L") {
                 pgPerMl = value * 0.272;  // 1 pmol/L = 0.272 pg/mL
             } else if (unit === "pg/dL") {
@@ -161,11 +169,11 @@
             }
 
             // Calcul des autres unités
-            pmolPerL = pgPerMl / 0.272;   // Inverse de la conversion pmol/L -> pg/mL
+            pmolPerL = pgPerMl / 0.272;
             pgPerDl = pgPerMl * 100;
             ngPerL = pgPerMl / 1;
 
-            // Affichage du résultat avec suppression des décimales nulles
+            // Affichage du résultat
             document.getElementById('oestradiol-result').innerHTML = `
                 <p><span class="highlight">pg/mL : ${formatNumber(pgPerMl)} (Objectif THSf : 100-400 pg/mL*)</span></p>
                 <p>pmol/L : ${formatNumber(pmolPerL)}</p>
