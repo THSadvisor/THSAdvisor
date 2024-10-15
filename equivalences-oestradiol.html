@@ -89,7 +89,7 @@
             const forme = document.getElementById('forme').value;
             let resultat = '';
 
-            // Équivalences correctes basées sur l'exemple fourni
+            // Équivalences corrigées
             const equivalences = {
                 'comprime': {
                     0.002: { gel: {estreva: 2, oestrodose: 1.33}, patch: 100 },
@@ -98,11 +98,13 @@
                 },
                 'gel-estreva': {
                     2: { comprimé: 0.002, patch: 100 },
-                    4: { comprimé: 0.004, patch: 200 }
+                    4: { comprimé: 0.004, patch: 200 },
+                    10: { comprimé: 0.01, patch: 500 } // Correction pour accepter des grandes valeurs
                 },
                 'gel-oestrodose': {
                     1.33: { comprimé: 0.002, patch: 100 },
-                    3: { comprimé: 0.004, patch: 200 }
+                    3: { comprimé: 0.004, patch: 200 },
+                    10: { comprimé: 0.01, patch: 500 } // Correction pour accepter des grandes valeurs
                 },
                 'patch': {
                     100: { comprimé: 0.002, gel: {estreva: 2, oestrodose: 1.33} },
