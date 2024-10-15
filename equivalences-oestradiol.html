@@ -41,11 +41,12 @@
         <select id="forme" onchange="afficherPosologie()">
             <option value="">Sélectionnez une forme</option>
             <option value="comprime">Comprimés (PROVAMES, OROMONE)</option>
-            <option value="gel">Gel transdermique (ESTREVA, OESTRODOSE)</option>
+            <option value="gel-estreva">Gel transdermique ESTREVA (0.5 mg/pression)</option>
+            <option value="gel-oestrodose">Gel transdermique OESTRODOSE (0.75 mg/pression)</option>
             <option value="patch">Patch transdermique (FEMSEPT, DERMESTRIL, THAÏS)</option>
         </select>
 
-        <!-- Zone de saisie de la posologie -->
+        <!-- Zone de saisie de la posologie (affichée en fonction du choix de la forme galénique) -->
         <div id="posologie-container"></div>
 
         <button onclick="convertir()">Convertir</button>
@@ -61,18 +62,23 @@
 
             if (forme === 'comprime') {
                 posologieHtml = `
-                    <label for="posologie-comprime">Choisir la posologie (en comprimés) :</label>
-                    <input type="number" id="posologie-comprime" step="0.5" min="0" placeholder="Ex: 1.5">
+                    <label for="posologie-comprime">Choisir la posologie (en grammes par jour) :</label>
+                    <input type="number" id="posologie-comprime" step="0.001" min="0" placeholder="Ex: 0.002">
                 `;
-            } else if (forme === 'gel') {
+            } else if (forme === 'gel-estreva') {
                 posologieHtml = `
-                    <label for="posologie-gel">Nombre de pressions par jour :</label>
-                    <input type="number" id="posologie-gel" step="0.5" min="0" placeholder="Ex: 2">
+                    <label for="posologie-gel">Nombre de pressions ESTREVA par jour :</label>
+                    <input type="number" id="posologie-gel" step="1" min="0" placeholder="Ex: 2">
+                `;
+            } else if (forme === 'gel-oestrodose') {
+                posologieHtml = `
+                    <label for="posologie-gel">Nombre de pressions OESTRODOSE par jour :</label>
+                    <input type="number" id="posologie-gel" step="1" min="0" placeholder="Ex: 2">
                 `;
             } else if (forme === 'patch') {
                 posologieHtml = `
-                    <label for="posologie-patch">Nombre de patchs :</label>
-                    <input type="number" id="posologie-patch" step="1" min="0" placeholder="Ex: 1">
+                    <label for="posologie-patch">Posologie en µg/24h :</label>
+                    <input type="number" id="posologie-patch" step="25" min="0" placeholder="Ex: 50">
                 `;
             }
 
@@ -83,20 +89,53 @@
             const forme = document.getElementById('forme').value;
             let resultat = '';
 
+            // Tableau d'équivalences basé sur le tableau fourni
+            const equivalences = {
+                'comprime': {
+                    0.002: { gel: 2, patch: 50 },
+                    0.004: { gel: 3, patch: 100 },
+                    0.008: { gel: 4, patch: 200 }
+                },
+                'gel-estreva': {
+                    2: { comprimé: 0.002, patch: 50 },
+                    3: { comprimé: 0.004, patch: 100 },
+                    4: { comprimé: 0.008, patch: 200 }
+                },
+                'gel-oestrodose': {
+                    2: { comprimé: 0.002, patch: 50 },
+                    3: { comprimé: 0.004, patch: 100 },
+                    4: { comprimé: 0.008, patch: 200 }
+                },
+                'patch': {
+                    50: { comprimé: 0.002, gel: 2 },
+                    100: { comprimé: 0.004, gel: 3 },
+                    200: { comprimé: 0.008, gel: 4 }
+                }
+            };
+
             if (forme === 'comprime') {
                 const posologieComprime = parseFloat(document.getElementById('posologie-comprime').value);
-                if (posologieComprime) {
-                    resultat = `Posologie des comprimés : ${posologieComprime} comprimé(s)`;
+                if (equivalences['comprime'][posologieComprime]) {
+                    const { gel, patch } = equivalences['comprime'][posologieComprime];
+                    resultat = `Posologie des comprimés : ${posologieComprime} g/jour<br>`;
+                    resultat += `Équivalent en gel : ${gel} pressions (ESTREVA)<br>`;
+                    resultat += `Équivalent en patch : ${patch} µg/24h`;
                 }
-            } else if (forme === 'gel') {
+            } else if (forme === 'gel-estreva' || forme === 'gel-oestrodose') {
                 const posologieGel = parseFloat(document.getElementById('posologie-gel').value);
-                if (posologieGel) {
-                    resultat = `Nombre de pressions : ${posologieGel} pression(s)`;
+                if (equivalences[forme][posologieGel]) {
+                    const { comprimé, patch } = equivalences[forme][posologieGel];
+                    resultat = `Nombre de pressions : ${posologieGel} (sur ${forme === 'gel-estreva' ? 'ESTREVA' : 'OESTRODOSE'})<br>`;
+                    resultat += `Équivalent en comprimés : ${comprimé} g/jour<br>`;
+                    resultat += `Équivalent en patch : ${patch} µg/24h`;
                 }
             } else if (forme === 'patch') {
                 const posologiePatch = parseFloat(document.getElementById('posologie-patch').value);
-                if (posologiePatch) {
-                    resultat = `Nombre de patchs : ${posologiePatch} patch(s)`;
+                if (equivalences['patch'][posologiePatch]) {
+                    const { comprimé, gel } = equivalences['patch'][posologiePatch];
+                    resultat = `Posologie en patch : ${posologiePatch} µg/24h<br>`;
+                    resultat += `Équivalent en comprimés : ${comprimé} g/jour<br>`;
+                    resultat += `Équivalent en gel : ${gel} pressions (ESTREVA)`;
                 }
             }
 
@@ -105,4 +144,3 @@
     </script>
 </body>
 </html>
-
