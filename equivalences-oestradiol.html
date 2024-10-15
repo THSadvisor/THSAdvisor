@@ -89,27 +89,24 @@
             const forme = document.getElementById('forme').value;
             let resultat = '';
 
-            // Tableau d'équivalences basé sur le tableau fourni
+            // Équivalences correctes basées sur l'exemple fourni
             const equivalences = {
                 'comprime': {
-                    0.002: { gel: 2, patch: 50 },
-                    0.004: { gel: 3, patch: 100 },
-                    0.008: { gel: 4, patch: 200 }
+                    0.002: { gel: {estreva: 2, oestrodose: 1.33}, patch: 100 },
+                    0.004: { gel: {estreva: 4, oestrodose: 3}, patch: 200 },
+                    0.008: { gel: {estreva: 6, oestrodose: 4}, patch: 300 }
                 },
                 'gel-estreva': {
-                    2: { comprimé: 0.002, patch: 50 },
-                    3: { comprimé: 0.004, patch: 100 },
-                    4: { comprimé: 0.008, patch: 200 }
+                    2: { comprimé: 0.002, patch: 100 },
+                    4: { comprimé: 0.004, patch: 200 }
                 },
                 'gel-oestrodose': {
-                    2: { comprimé: 0.002, patch: 50 },
-                    3: { comprimé: 0.004, patch: 100 },
-                    4: { comprimé: 0.008, patch: 200 }
+                    1.33: { comprimé: 0.002, patch: 100 },
+                    3: { comprimé: 0.004, patch: 200 }
                 },
                 'patch': {
-                    50: { comprimé: 0.002, gel: 2 },
-                    100: { comprimé: 0.004, gel: 3 },
-                    200: { comprimé: 0.008, gel: 4 }
+                    100: { comprimé: 0.002, gel: {estreva: 2, oestrodose: 1.33} },
+                    200: { comprimé: 0.004, gel: {estreva: 4, oestrodose: 3} }
                 }
             };
 
@@ -118,14 +115,22 @@
                 if (equivalences['comprime'][posologieComprime]) {
                     const { gel, patch } = equivalences['comprime'][posologieComprime];
                     resultat = `Posologie des comprimés : ${posologieComprime} g/jour<br>`;
-                    resultat += `Équivalent en gel : ${gel} pressions (ESTREVA)<br>`;
+                    resultat += `Équivalent en gel : ${gel.estreva} pressions (ESTREVA) ou ${gel.oestrodose} pressions (OESTRODOSE)<br>`;
                     resultat += `Équivalent en patch : ${patch} µg/24h`;
                 }
-            } else if (forme === 'gel-estreva' || forme === 'gel-oestrodose') {
+            } else if (forme === 'gel-estreva') {
                 const posologieGel = parseFloat(document.getElementById('posologie-gel').value);
-                if (equivalences[forme][posologieGel]) {
-                    const { comprimé, patch } = equivalences[forme][posologieGel];
-                    resultat = `Nombre de pressions : ${posologieGel} (sur ${forme === 'gel-estreva' ? 'ESTREVA' : 'OESTRODOSE'})<br>`;
+                if (equivalences['gel-estreva'][posologieGel]) {
+                    const { comprimé, patch } = equivalences['gel-estreva'][posologieGel];
+                    resultat = `Nombre de pressions ESTREVA : ${posologieGel} pression(s)<br>`;
+                    resultat += `Équivalent en comprimés : ${comprimé} g/jour<br>`;
+                    resultat += `Équivalent en patch : ${patch} µg/24h`;
+                }
+            } else if (forme === 'gel-oestrodose') {
+                const posologieGel = parseFloat(document.getElementById('posologie-gel').value);
+                if (equivalences['gel-oestrodose'][posologieGel]) {
+                    const { comprimé, patch } = equivalences['gel-oestrodose'][posologieGel];
+                    resultat = `Nombre de pressions OESTRODOSE : ${posologieGel} pression(s)<br>`;
                     resultat += `Équivalent en comprimés : ${comprimé} g/jour<br>`;
                     resultat += `Équivalent en patch : ${patch} µg/24h`;
                 }
@@ -135,7 +140,7 @@
                     const { comprimé, gel } = equivalences['patch'][posologiePatch];
                     resultat = `Posologie en patch : ${posologiePatch} µg/24h<br>`;
                     resultat += `Équivalent en comprimés : ${comprimé} g/jour<br>`;
-                    resultat += `Équivalent en gel : ${gel} pressions (ESTREVA)`;
+                    resultat += `Équivalent en gel : ${gel.estreva} pressions (ESTREVA) ou ${gel.oestrodose} pressions (OESTRODOSE)`;
                 }
             }
 
