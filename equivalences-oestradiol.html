@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THSadvisor - Test Conversion</title>
+    <title>THSadvisor - Conversion des Formes Galéniques</title>
     <style>
         body {
             font-family: monospace;
@@ -22,17 +22,23 @@
 </head>
 <body>
     <div class="container">
-        <h1>Test Formes Galéniques</h1>
+        <h1>Convertisseur de Formes Galéniques</h1>
+
+        <!-- Sélection de la forme galénique -->
         <label for="forme">Choisir une forme galénique :</label>
         <select id="forme" onchange="afficherPosologie()">
             <option value="">Sélectionnez une forme</option>
-            <option value="comprime">Comprimés</option>
-            <option value="gel-estreva">Gel ESTREVA</option>
-            <option value="gel-oestrodose">Gel OESTRODOSE</option>
-            <option value="patch">Patch</option>
+            <option value="comprime">Comprimés (PROVAMES, OROMONE)</option>
+            <option value="gel-estreva">Gel ESTREVA (0.5 mg/pression)</option>
+            <option value="gel-oestrodose">Gel OESTRODOSE (0.75 mg/pression)</option>
+            <option value="patch">Patch transdermique (FEMSEPT, DERMESTRIL, THAÏS)</option>
         </select>
 
         <div id="posologie-container"></div>
+
+        <button id="convert-btn" onclick="convertir()" style="display:none;">Convertir</button>
+
+        <div id="resultat"></div>
     </div>
 
     <script>
@@ -51,7 +57,30 @@
             }
 
             document.getElementById('posologie-container').innerHTML = posologieHtml;
+            document.getElementById('convert-btn').style.display = 'block';
+        }
+
+        function convertir() {
+            const forme = document.getElementById('forme').value;
+            let resultat = '';
+
+            if (forme === 'comprime') {
+                const posologieComprime = parseFloat(document.getElementById('posologie-comprime').value);
+                resultat = `Posologie des comprimés (oral) : ${posologieComprime} mg/jour`;
+            } else if (forme === 'gel-estreva') {
+                const posologieGel = parseFloat(document.getElementById('posologie-gel').value);
+                resultat = `Nombre de pressions ESTREVA : ${posologieGel}`;
+            } else if (forme === 'gel-oestrodose') {
+                const posologieGel = parseFloat(document.getElementById('posologie-gel').value);
+                resultat = `Nombre de pressions OESTRODOSE : ${posologieGel}`;
+            } else if (forme === 'patch') {
+                const posologiePatch = parseFloat(document.getElementById('posologie-patch').value);
+                resultat = `Posologie en patch : ${posologiePatch} µg/24h`;
+            }
+
+            document.getElementById('resultat').innerHTML = resultat;
         }
     </script>
 </body>
 </html>
+
