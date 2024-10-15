@@ -4,12 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THSadvisor - Accueil</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <style>
+        body {
+            font-family: monospace;
+            background-color: #121212;
+            color: #FFFFFF;
+            margin: 20px;
+            text-align: center;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        li {
+            margin: 20px 0;
+        }
+
+        a {
+            color: #00A0FF;
+            text-decoration: none;
+            font-size: 1.5em;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 50px;
+            font-size: 1em;
+            color: #FF69B4;
+        }
+    </style>
 </head>
 <body>
-    <h1>Bienvenue sur THSadvisor</h1>
+    <h1>THSadvisor</h1>
+    <p>Toolbox pour aide à la prescription de THS à destination des praticiens.</p>
     <ul>
         <li><a href="convertisseur.html">Converter</a></li>
         <li><a href="equivalences-oestradiol.html">Equivalences Oestradiol</a></li>
+        <li><a href="README.md">Readme</a></li>
     </ul>
+
+    <footer id="last-updated">Dernière mise à jour le :</footer>
+
+    <script>
+        // Fonction pour récupérer la dernière date de modification du document
+        const lastUpdated = document.lastModified;
+        document.getElementById('last-updated').textContent += ` ${lastUpdated}`;
+    </script>
 </body>
 </html>
