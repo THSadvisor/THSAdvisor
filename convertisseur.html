@@ -18,7 +18,24 @@
             align-items: flex-start;
             gap: 50px;
         }
-        .module {
+       /* Style du bouton Accueil */
+.accueil-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #007BFF; /* Couleur de fond du bouton */
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 16px;
+}
+
+.accueil-btn:hover {
+    background-color: #0056b3; /* Changement de couleur au survol */
+}
+ .module {
             width: 350px; /* Largeur ajustée */
             padding: 20px;
             background-color: #1E1E1E;
@@ -82,6 +99,7 @@
     </style>
 </head>
 <body>
+     <a href="index.html" class="accueil-btn">Accueil</a>
     <div class="container">
         <!-- Module Testostérone -->
         <div class="module">
