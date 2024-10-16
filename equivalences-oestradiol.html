@@ -128,16 +128,17 @@
     resultat += `Équivalent en gel (grande zone, OESTRODOSE) : ${gel_grande_oestrodose.toFixed(2)} pressions (OESTRODOSE)<br>`;
 } else if (forme === 'gel-estreva') {
     const posologieGel = parseFloat(document.getElementById('posologie-gel').value);
-    const comprimé_oral = posologieGel * conversionFacteurs.gel_petite_to_comprimé;
+    const comprimé_oral = posologieGel * conversionFacteurs.gel_petite_estreva_to_comprimé;
     const sublingual = comprimé_oral * conversionFacteurs.comprimé_to_sublingual;
     const patch = comprimé_oral * conversionFacteurs.comprimé_to_patch;
-    const gel_grande_estreva = comprimé_oral * conversionFacteurs.comprimé_to_gel_grande;
-    const gel_petite_oestrodose = posologieGel * 0.5 / 0.75;  // Conversion vers Oestrodose
+    const gel_grande_estreva = comprimé_oral / conversionFacteurs.comprimé_to_gel_grande_estreva;
+    const gel_petite_oestrodose = posologieGel * (0.5 / 0.75);  // Conversion vers Oestrodose
 
     resultat = `Nombre de pressions ESTREVA : ${posologieGel} pression(s)<br>`;
-    resultat += `Équivalent en comprimés (oral) : ${comprimé_oral} mg/jour<br>`;
-    resultat += `Équivalent en comprimés (sublingual) : ${sublingual} mg/jour<br>`;
-    resultat += `Équivalent en patch : ${patch} µg/24h<br>`;
+    resultat += `Équivalent en comprimés (oral) : ${comprimé_oral.toFixed(2)} mg/jour<br>`;
+    resultat += `Équivalent en comprimés (sublingual) : ${sublingual.toFixed(2)} mg/jour<br>`;
+    resultat += `Équivalent en patch : ${patch.toFixed(2)} µg/24h<br>`;
+    resultat += `Équivalent en gel (grande zone, ESTREVA) : ${gel_grande_estreva.toFixed(2)} pressions (ESTREVA)<br>`;
     resultat += `Équivalent en gel (OESTRODOSE) : ${gel_petite_oestrodose.toFixed(2)} pressions (OESTRODOSE)<br>`;
 } else if (forme === 'gel-oestrodose') {
     const posologieGel = parseFloat(document.getElementById('posologie-gel').value);
