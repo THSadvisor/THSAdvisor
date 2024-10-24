@@ -21,7 +21,7 @@
         }
         select, input {
             font-family: monospace;
-            width: 100%;
+            width: calc(100% - 22px); /* Assure une largeur uniforme avec le bouton et les autres champs */
             padding: 10px;
             margin: 10px 0;
             background-color: #555;
@@ -30,7 +30,6 @@
             border-radius: 5px;
         }
         button#convert-btn {
-            font-family: monospace;
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -39,18 +38,22 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-family: monospace;
         }
-        button#accueil-btn {
+        .accueil-btn {
             position: absolute;
             top: 10px;
             left: 10px;
-            background-color: #007BFF;
-            color: #FFF;
-            border: none;
-            padding: 10px;
+            background-color: #007BFF; /* Couleur de fond du bouton */
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
             border-radius: 5px;
-            cursor: pointer;
-            width: auto; /* Pour éviter que le bouton prenne toute la largeur */
+            font-family: monospace;
+            font-size: 16px;
+        }
+        .accueil-btn:hover {
+            background-color: #0056b3; /* Changement de couleur au survol */
         }
         .highlight {
             font-weight: bold;
@@ -67,7 +70,7 @@
     </style>
 </head>
 <body>
-    <button id="accueil-btn" onclick="window.location.href='index.html'">Accueil</button>
+    <a href="index.html" class="accueil-btn">Accueil</a>
     <div class="container">
         <h1>Convertisseur de Formes Galéniques</h1>
 
