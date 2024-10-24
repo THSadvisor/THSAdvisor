@@ -54,6 +54,7 @@
             font-size: 1.2em;
             margin-top: 20px;
             text-align: center;
+            display: none;
         }
     </style>
 </head>
@@ -75,7 +76,7 @@
         <div id="posologie-container"></div>
         <button id="convert-btn" onclick="convertir()" style="display:none;">Convertir</button>
         <div id="resultat"></div>
-        <p class="note">Les équivalences sont purement théoriques ; en pratique, l'absorption des différentes formes galéniques peut varier significativement d'une personne à l'autre.</p>
+        <p id="note-equivalences" class="note">Les équivalences sont purement théoriques ; en pratique, l'absorption des différentes formes galéniques peut varier significativement d'une personne à l'autre.</p>
     </div>
 
     <script>
@@ -153,6 +154,7 @@
             }
 
             document.getElementById('resultat').innerHTML = resultat;
+            document.getElementById('note-equivalences').style.display = 'block';
         }
     </script>
 </body>
