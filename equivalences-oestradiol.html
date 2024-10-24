@@ -116,7 +116,7 @@
 
             if (forme === 'comprime') {
                 posologie = parseFloat(document.getElementById('posologie-comprime').value);
-                resultat += `<p class="highlight">Posologie comprimés : ${posologie} mg/jour</p>`;
+                resultat += `<p class="highlight">Posologie comprimés (voie sublinguale) : ${posologie} mg/jour</p>`;
                 const patch = posologie * 100;
                 const gel_estreva = posologie * 2;
                 const gel_oestrodose = posologie * (1 / 0.75);
