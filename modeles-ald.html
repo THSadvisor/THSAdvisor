@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THSadvisor - Modèles ALD</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <style>
+        body {
+            font-family: monospace;
+            background-color: #121212;
+            color: #FFFFFF;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        .accueil-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #00A0FF;
+            text-decoration: none;
+            font-size: 1.2em;
+        }
+
+        .accueil-btn:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 60px;
+        }
+
+        .module {
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .title {
+            color: #FF69B4;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .text-box {
+            background-color: #1E1E1E;
+            border: 1px solid #333;
+            padding: 20px;
+            border-radius: 5px;
+            position: relative;
+            min-height: 200px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #00A0FF;
+            cursor: pointer;
+            font-size: 1.5em;
+        }
+
+        .copy-btn:hover {
+            color: #FF69B4;
+        }
+
+        .disclaimer {
+            text-align: center;
+            margin-top: 40px;
+            color: #888;
+            font-style: italic;
+        }
+
+        /* Animation pour le retour visuel de la copie */
+        @keyframes copyAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .copy-animation {
+            animation: copyAnimation 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="accueil-btn">Accueil</a>
+
+    <div class="container">
+        <div class="module">
+            <div class="title">Transition féminisante (Transidentité, ALD31)</div>
+            <div class="text-box" id="fem-text">
+                Transidentité présente depuis plusieurs années. Hormonothérapie féminisante à vie. Bilans sanguins et imagerie réguliers. Suivi pluridisciplinaire : cs régulières de spécialistes : psychiatre, endocrinologue, dermatologue (épilation laser ou électrolyse visage et corps entier toutes parties), cs chirurgiens et soins post op, ORL, phoniatre. Kinésithérapeute, orthophoniste, soins infirmiers. Prothèses capillaires. Préservation gamètes.
+                <button class="copy-btn" onclick="copyText('fem-text')" title="Copier le texte">📋</button>
+            </div>
+        </div>
+
+        <div class="module">
+            <div class="title">Transition masculinisante (Transidentité, ALD31)</div>
+            <div class="text-box" id="masc-text">
+                Transidentité présente depuis plusieurs années. Hormonothérapie masculinisante à vie. Bilans sanguins et examens d'imagerie réguliers. Suivi pluridisciplinaire et cs régulières de spécialistes : psychiatre, endocrinologue, dermatologue, épilation laser visage et corps entiers toutes parties, chirurgiens (consultations et soins post op), ORL, phoniatre. Kinésithérapeute, orthophoniste, soins infirmiers.
+                <button class="copy-btn" onclick="copyText('masc-text')" title="Copier le texte">📋</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="disclaimer">
+        Il ne s'agit ici que de modèles personnels de protocoles de soins, de nombreux autres modèles sont disponibles en ligne facilement.
+    </div>
+
+    <script>
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).textContent.replace('📋', '').trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const button = document.getElementById(elementId).querySelector('.copy-btn');
+                button.classList.add('copy-animation');
+                setTimeout(() => {
+                    button.classList.remove('copy-animation');
+                }, 300);
+            });
+        }
+    </script>
+</body>
+</html>
