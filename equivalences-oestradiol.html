@@ -207,6 +207,16 @@
       color: var(--approx);
       border: 1px solid var(--approx-border);
     }
+    .badge.very-approximate {
+      background: rgba(248, 81, 73, 0.15);
+      color: #f85149;
+      border: 1px solid rgba(248, 81, 73, 0.4);
+    }
+    .equiv-card.very-approximate {
+      border: 1px solid rgba(248, 81, 73, 0.35);
+      border-left: 3px solid #f85149;
+      background: rgba(248, 81, 73, 0.05);
+    }
     .equiv-value {
       font-size: 1.2rem;
       font-weight: 700;
@@ -268,6 +278,7 @@
       <label for="forme">Forme galénique de départ</label>
       <select id="forme" onchange="afficherPosologie()">
         <option value="">Sélectionnez une forme</option>
+        <option value="comprime-oral">Comprimés per os — voie orale (Provames, Oromone)</option>
         <option value="comprime">Comprimés sublinguaux (Provames, Oromone)</option>
         <option value="gel-estreva">Gel ESTREVA</option>
         <option value="gel-oestrodose">Gel OESTRODOSE</option>
@@ -287,13 +298,22 @@
 
   <script>
     const formLabels = {
-      comprime:       'Comprimés sublinguaux',
-      'gel-estreva':  'Gel Estreva',
+      'comprime-oral':  'Comprimés per os (voie orale)',
+      comprime:         'Comprimés sublinguaux',
+      'gel-estreva':    'Gel Estreva',
       'gel-oestrodose': 'Gel Oestrodose',
-      patch:          'Patch transdermique',
+      patch:            'Patch transdermique',
     };
 
     const dosingNotes = {
+      'comprime-oral': `
+        <strong>Quand doser ?</strong>
+        Au creux, environ 8–12 h après la dernière prise (si prise unique par jour).
+        <br><br>
+        <strong>⚠ Immunodosage :</strong> les immunodosages courants utilisés en France
+        surestiment fréquemment les taux d'œstradiol sous estradiol oral (interférence des
+        métabolites). Viser un creux <strong>&gt; 150 pg/mL</strong> pour compenser cette
+        surestimation (Cirrincione et al., <em>Eur J Endocrinol</em> 2022).`,
       comprime: `
         <strong>Quand doser ?</strong>
         Au creux, juste avant la prise suivante (pas de délai par rapport à la prise précédente).
@@ -313,7 +333,24 @@
         Au creux, juste avant le changement du patch (fin de période de port).`,
     };
 
+    // ── Fiabilité des conversions ────────────────────────────────
+    // reliable      : transdermique ↔ transdermique
+    // approximate   : oral ↔ transdermique (différences PK, pas de bioéquivalence robuste)
+    // very-approx   : sublingual ↔ transdermique ou oral ↔ sublingual (PK radicalement différents)
     const transdermal = new Set(['gel-estreva', 'gel-oestrodose', 'patch']);
+
+    function reliability(src, tgt) {
+      if (transdermal.has(src) && transdermal.has(tgt))   return 'reliable';
+      if ((src === 'comprime-oral') && transdermal.has(tgt)) return 'approximate';
+      if (transdermal.has(src) && tgt === 'comprime-oral')  return 'approximate';
+      return 'very-approximate'; // sublingual↔transdermal, oral↔sublingual
+    }
+
+    function badgeFor(r) {
+      if (r === 'reliable')        return '<span class="badge reliable">Fiable ✓</span>';
+      if (r === 'approximate')     return '<span class="badge approximate">Approximatif ⚠</span>';
+      return '<span class="badge very-approximate">Très approx. ⚠⚠</span>';
+    }
 
     function afficherPosologie() {
       const forme = document.getElementById('forme').value;
@@ -331,8 +368,10 @@
       }
 
       let labelTxt, placeholder, step;
-      if (forme === 'comprime') {
-        labelTxt = 'Posologie (mg/jour)'; placeholder = 'Ex : 2'; step = '0.1';
+      if (forme === 'comprime-oral') {
+        labelTxt = 'Posologie per os (mg/jour)'; placeholder = 'Ex : 2'; step = '0.5';
+      } else if (forme === 'comprime') {
+        labelTxt = 'Posologie sublinguale (mg/jour)'; placeholder = 'Ex : 2'; step = '0.1';
       } else if (forme === 'gel-estreva') {
         labelTxt = 'Pressions Estreva / jour'; placeholder = 'Ex : 2'; step = '1';
       } else if (forme === 'gel-oestrodose') {
@@ -366,14 +405,23 @@
         return;
       }
 
-      // Pivot = mg/j sublingual
+      // ── Pivot = mg/j sublingual ────────────────────────────────
+      // Oral : biodisponibilité ~5% vs sublingual ~25-50%.
+      // Facteur utilisé : ×4 (oral 4× moins efficace que sublingual).
+      // Plage réelle estimée : ×2 à ×5 — valeur indicative uniquement.
       let pivot;
-      if      (forme === 'comprime')        pivot = posologie;
+      if      (forme === 'comprime-oral')   pivot = posologie * 0.25;
+      else if (forme === 'comprime')        pivot = posologie;
       else if (forme === 'gel-estreva')     pivot = posologie / 2;
       else if (forme === 'gel-oestrodose')  pivot = posologie * 0.75;
       else if (forme === 'patch')           pivot = posologie / 100;
 
       const equivalents = {
+        'comprime-oral': {
+          value: pivot * 4,
+          unit: 'mg/jour',
+          tubeNote: null,
+        },
         comprime: {
           value: pivot,
           unit: 'mg/jour',
@@ -396,21 +444,33 @@
         },
       };
 
-      const inputIsSubl = forme === 'comprime';
       let html = '';
 
-      // ── Global warning si voie sublinguale en entrée ───────────
-      if (inputIsSubl) {
+      // ── Avertissements globaux selon la voie d'entrée ─────────
+      if (forme === 'comprime') {
         html += `
           <div class="global-warning">
             <span class="gw-icon">⛔</span>
             <div>
               <strong>Conversions particulièrement approximatives depuis le sublingual.</strong><br>
-              La voie sublinguale et les voies transdermiques ont des profils pharmacocinétiques
-              radicalement différents : pic élevé suivi d'une décroissance rapide pour le sublingual,
-              contre des taux stables pour les voies transdermiques. Il n'existe pas de données de
-              bioéquivalence publiées entre ces voies. Ces chiffres sont de simples ordres de grandeur
-              et ne doivent pas être utilisés pour des ajustements de dose précis.
+              Profils pharmacocinétiques radicalement différents : pic élevé puis décroissance
+              rapide (sublingual) vs taux stables (transdermique). Aucune donnée de
+              bioéquivalence publiée entre ces voies. Ordres de grandeur uniquement.
+            </div>
+          </div>`;
+      } else if (forme === 'comprime-oral') {
+        html += `
+          <div class="global-warning">
+            <span class="gw-icon">⚠️</span>
+            <div>
+              <strong>Toutes ces conversions sont très approximatives.</strong><br>
+              Biodisponibilité orale ~5 % (fort effet de premier passage hépatique) vs sublingual
+              ~25–50 % et transdermique ~50–80 %. Le facteur utilisé ici est ×4 (oral = ¼ du
+              sublingual), mais la plage réelle est ×2 à ×5 selon les individus.<br><br>
+              <strong>⚠ Immunodosage :</strong> les immunodosages courants surestiment
+              fréquemment les taux sous estradiol oral. Cibler un creux
+              <strong>&gt; 150 pg/mL</strong> pour compenser (Cirrincione et al.,
+              <em>Eur J Endocrinol</em> 2022).
             </div>
           </div>`;
       }
@@ -424,29 +484,16 @@
       for (const [key, data] of Object.entries(equivalents)) {
         if (key === forme) continue;
 
-        const reliable = transdermal.has(forme) && transdermal.has(key);
-        const badgeHtml = reliable
-          ? '<span class="badge reliable">Fiable ✓</span>'
-          : '<span class="badge approximate">Approximatif ⚠</span>';
-        const cardClass = reliable ? 'reliable' : 'approximate';
-
-        // Note inline si sublingual en sortie mais pas en entrée
-        let inlineNote = '';
-        if (!inputIsSubl && key === 'comprime') {
-          inlineNote = `
-            <div style="font-size:0.78rem;color:var(--approx);margin-bottom:10px;">
-              ⚠ Conversion transdermique → sublingual particulièrement approximative
-              (profils PK radicalement différents, pas de données de bioéquivalence).
-            </div>`;
-        }
+        const rel = reliability(forme, key);
+        const badge = badgeFor(rel);
+        const cardClass = rel; // CSS classes match reliability strings
 
         html += `
           <div class="equiv-card ${cardClass}">
             <div class="equiv-header">
               <span class="form-name">${formLabels[key]}</span>
-              ${badgeHtml}
+              ${badge}
             </div>
-            ${inlineNote}
             <div class="equiv-value">${data.value.toFixed(2)} ${data.unit}</div>
             ${data.tubeNote ? `<div class="tube-count">${data.tubeNote}</div>` : ''}
             <details class="dosing-details">
