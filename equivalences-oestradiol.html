@@ -1,172 +1,464 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THSadvisor - Convertisseur de Formes Galéniques</title>
-    <link rel="icon" href="favicon.png" type="image/x-icon">
-    <style>
-        body {
-            font-family: monospace;
-            background-color: #121212;
-            color: #FFFFFF;
-            margin: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            background-color: #333;
-            border-radius: 10px;
-        }
-        select, input {
-            font-family: monospace;
-            width: calc(100% - 22px); /* Assure une largeur uniforme avec le bouton et les autres champs */
-            padding: 10px;
-            margin: 10px 0;
-            background-color: #555;
-            color: #FFF;
-            border: none;
-            border-radius: 5px;
-        }
-        button#convert-btn {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            background-color: #007BFF;
-            color: #FFF;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: monospace;
-        }
-        .accueil-btn {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: #007BFF; /* Couleur de fond du bouton */
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 16px;
-        }
-        .accueil-btn:hover {
-            background-color: #0056b3; /* Changement de couleur au survol */
-        }
-        .highlight {
-            font-weight: bold;
-            color: #FF69B4;
-        }
-        .note {
-            font-weight: bold;
-            color: #FF69B4;
-            font-size: 1.2em;
-            margin-top: 20px;
-            text-align: center;
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THSadvisor — Équivalences Œstradiol</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --pink: #f778ba;
+      --warning: #d29922;
+      --warning-bg: rgba(210, 153, 34, 0.07);
+      --warning-border: rgba(210, 153, 34, 0.35);
+      --reliable: #3fb950;
+      --reliable-bg: rgba(63, 185, 80, 0.07);
+      --reliable-border: rgba(63, 185, 80, 0.3);
+      --approx: #d29922;
+      --approx-bg: rgba(210, 153, 34, 0.07);
+      --approx-border: rgba(210, 153, 34, 0.3);
+      --danger-bg: rgba(248, 81, 73, 0.07);
+      --danger-border: rgba(248, 81, 73, 0.35);
+      --radius: 6px;
+      --radius-lg: 10px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 0.85rem;
+    }
+    .topbar a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .topbar a:hover { text-decoration: underline; }
+    .topbar .sep { color: var(--border); }
+    .topbar .current { color: var(--muted); }
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 32px 16px 56px;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0 0 6px;
+      letter-spacing: -0.01em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin: 0 0 28px;
+    }
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 9px 11px;
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+      transition: border-color 0.15s;
+    }
+    select:focus, input[type="number"]:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    select option { background: var(--surface2); }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.85; }
+
+    /* Dosing note for selected input form */
+    .dosing-input-card {
+      display: flex;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: var(--text);
+      margin-top: 14px;
+    }
+    .dosing-input-card .di-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+    /* Global sublingual warning */
+    .global-warning {
+      display: flex;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      border-radius: var(--radius-lg);
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .global-warning .gw-icon { font-size: 1.2rem; flex-shrink: 0; padding-top: 1px; }
+    .global-warning strong { color: #f85149; }
+
+    /* Input summary line */
+    .input-summary {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+      padding: 0 2px;
+    }
+    .input-summary strong { color: var(--text); }
+
+    /* Equiv grid */
+    .equiv-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    /* Individual equiv card */
+    .equiv-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      border-left: 3px solid transparent;
+    }
+    .equiv-card.reliable {
+      border: 1px solid var(--reliable-border);
+      border-left: 3px solid var(--reliable);
+      background: var(--reliable-bg);
+    }
+    .equiv-card.approximate {
+      border: 1px solid var(--approx-border);
+      border-left: 3px solid var(--approx);
+      background: var(--approx-bg);
+    }
+    .equiv-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .form-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.02em;
+    }
+    .badge.reliable {
+      background: rgba(63, 185, 80, 0.15);
+      color: var(--reliable);
+      border: 1px solid var(--reliable-border);
+    }
+    .badge.approximate {
+      background: rgba(210, 153, 34, 0.15);
+      color: var(--approx);
+      border: 1px solid var(--approx-border);
+    }
+    .equiv-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 4px;
+    }
+    .tube-count {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    details.dosing-details {
+      margin-top: 10px;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+    }
+    details.dosing-details summary {
+      font-size: 0.78rem;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    details.dosing-details summary::-webkit-details-marker { display: none; }
+    details.dosing-details summary::before {
+      content: '▶';
+      font-size: 0.6rem;
+      transition: transform 0.15s;
+      display: inline-block;
+    }
+    details.dosing-details[open] summary::before { transform: rotate(90deg); }
+    details.dosing-details summary:hover { color: var(--text); }
+    .dosing-body {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.65;
+      padding-top: 8px;
+    }
+    .dosing-body strong { color: var(--text); }
+    .error-msg { font-size: 0.82rem; color: var(--muted); padding: 8px 0; }
+  </style>
 </head>
 <body>
-    <a href="index.html" class="accueil-btn">Accueil</a>
-    <div class="container">
-        <h1>Convertisseur de Formes Galéniques</h1>
+  <nav class="topbar">
+    <a href="index.html">← Accueil</a>
+    <span class="sep">/</span>
+    <span class="current">Équivalences formes galéniques</span>
+  </nav>
 
-        <!-- Sélection de la forme galénique -->
-        <label for="forme">Choisir une forme galénique :</label>
-        <select id="forme" onchange="afficherPosologie()">
-            <option value="">Sélectionnez une forme</option>
-            <option value="comprime">Comprimés (PROVAMES, OROMONE)</option>
-            <option value="gel-estreva">Gel ESTREVA</option>
-            <option value="gel-oestrodose">Gel OESTRODOSE</option>
-            <option value="patch">Patchs transdermiques (DERMESTRIL, FEMSEPT, etc)</option>
-        </select>
+  <main>
+    <h1>Équivalences formes galéniques</h1>
+    <p class="subtitle">Conversions théoriques entre les différentes formes d'œstradiol.</p>
 
-        <div id="posologie-container"></div>
-        <button id="convert-btn" onclick="convertir()" style="display:none;">Convertir</button>
-        <div id="resultat"></div>
-        <p id="note-equivalences" class="note">Les équivalences sont purement théoriques ; en pratique, l'absorption des différentes formes galéniques peut varier significativement d'une personne à l'autre.</p>
+    <div class="form-card">
+      <label for="forme">Forme galénique de départ</label>
+      <select id="forme" onchange="afficherPosologie()">
+        <option value="">Sélectionnez une forme</option>
+        <option value="comprime">Comprimés sublinguaux (Provames, Oromone)</option>
+        <option value="gel-estreva">Gel ESTREVA</option>
+        <option value="gel-oestrodose">Gel OESTRODOSE</option>
+        <option value="patch">Patchs transdermiques (Dermestril, Femsept…)</option>
+      </select>
+
+      <div id="posologie-container"></div>
+      <div id="input-dosing-note"></div>
+
+      <div style="margin-top: 14px;">
+        <button id="convert-btn" onclick="convertir()" style="display:none;">Calculer les équivalences</button>
+      </div>
     </div>
 
-    <script>
-        function afficherPosologie() {
-            const forme = document.getElementById('forme').value;
-            let posologieHtml = '';
+    <div id="resultat"></div>
+  </main>
 
-            if (forme === 'comprime') {
-                posologieHtml = '<label for="posologie-comprime">Posologie (mg/jour) :</label><input type="number" id="posologie-comprime" step="0.1" placeholder="Ex: 2">';
-            } else if (forme === 'gel-estreva') {
-                posologieHtml = '<label for="posologie-gel">Pressions ESTREVA :</label><input type="number" id="posologie-gel" step="1" placeholder="Ex: 2">';
-            } else if (forme === 'gel-oestrodose') {
-                posologieHtml = '<label for="posologie-gel">Pressions OESTRODOSE :</label><input type="number" id="posologie-gel" step="1" placeholder="Ex: 2">';
-            } else if (forme === 'patch') {
-                posologieHtml = '<label for="posologie-patch">Posologie (µg/24h) :</label><input type="number" id="posologie-patch" step="10" placeholder="Ex: 100">';
-            }
+  <script>
+    const formLabels = {
+      comprime:       'Comprimés sublinguaux',
+      'gel-estreva':  'Gel Estreva',
+      'gel-oestrodose': 'Gel Oestrodose',
+      patch:          'Patch transdermique',
+    };
 
-            document.getElementById('posologie-container').innerHTML = posologieHtml;
-            document.getElementById('convert-btn').style.display = 'block';
+    const dosingNotes = {
+      comprime: `
+        <strong>Quand doser ?</strong>
+        Au creux, juste avant la prise suivante (pas de délai par rapport à la prise précédente).
+        Un creux ≥ 70–80 pg/mL est acceptable en l'absence de symptômes.`,
+      'gel-estreva': `
+        <strong>Quand doser ?</strong>
+        À n'importe quel moment de la journée — les taux sont relativement stables.
+        <strong>⚠ Prélever du côté du bras sur lequel on n'applique pas le gel</strong>,
+        et ne pas appliquer le gel sur le bras de prélèvement le jour du dosage.`,
+      'gel-oestrodose': `
+        <strong>Quand doser ?</strong>
+        À n'importe quel moment de la journée — les taux sont relativement stables.
+        <strong>⚠ Prélever du côté du bras sur lequel on n'applique pas le gel</strong>,
+        et ne pas appliquer le gel sur le bras de prélèvement le jour du dosage.`,
+      patch: `
+        <strong>Quand doser ?</strong>
+        Au creux, juste avant le changement du patch (fin de période de port).`,
+    };
+
+    const transdermal = new Set(['gel-estreva', 'gel-oestrodose', 'patch']);
+
+    function afficherPosologie() {
+      const forme = document.getElementById('forme').value;
+      const container = document.getElementById('posologie-container');
+      const dosingEl  = document.getElementById('input-dosing-note');
+      const btn       = document.getElementById('convert-btn');
+
+      document.getElementById('resultat').innerHTML = '';
+
+      if (!forme) {
+        container.innerHTML = '';
+        dosingEl.innerHTML  = '';
+        btn.style.display   = 'none';
+        return;
+      }
+
+      let labelTxt, placeholder, step;
+      if (forme === 'comprime') {
+        labelTxt = 'Posologie (mg/jour)'; placeholder = 'Ex : 2'; step = '0.1';
+      } else if (forme === 'gel-estreva') {
+        labelTxt = 'Pressions Estreva / jour'; placeholder = 'Ex : 2'; step = '1';
+      } else if (forme === 'gel-oestrodose') {
+        labelTxt = 'Pressions Oestrodose / jour'; placeholder = 'Ex : 2'; step = '1';
+      } else if (forme === 'patch') {
+        labelTxt = 'Posologie patch (µg/24h)'; placeholder = 'Ex : 100'; step = '10';
+      }
+
+      container.innerHTML = `
+        <label for="posologie">${labelTxt}</label>
+        <input type="number" id="posologie" step="${step}" min="0" placeholder="${placeholder}">`;
+
+      dosingEl.innerHTML = `
+        <div class="dosing-input-card">
+          <span class="di-icon">⏱</span>
+          <div>${dosingNotes[forme]}</div>
+        </div>`;
+
+      btn.style.display = 'block';
+    }
+
+    function convertir() {
+      const forme = document.getElementById('forme').value;
+      const posEl = document.getElementById('posologie');
+      if (!posEl) return;
+      const posologie = parseFloat(posEl.value);
+      const el = document.getElementById('resultat');
+
+      if (!forme || isNaN(posologie) || posologie <= 0) {
+        el.innerHTML = '<p class="error-msg">Entrez une valeur valide.</p>';
+        return;
+      }
+
+      // Pivot = mg/j sublingual
+      let pivot;
+      if      (forme === 'comprime')        pivot = posologie;
+      else if (forme === 'gel-estreva')     pivot = posologie / 2;
+      else if (forme === 'gel-oestrodose')  pivot = posologie * 0.75;
+      else if (forme === 'patch')           pivot = posologie / 100;
+
+      const equivalents = {
+        comprime: {
+          value: pivot,
+          unit: 'mg/jour',
+          tubeNote: null,
+        },
+        'gel-estreva': {
+          value: pivot * 2,
+          unit: 'pressions/jour',
+          tubeNote: `≈ ${(pivot * 2 / 100 * 30).toFixed(1)} tubes Estreva / mois (100 press./tube)`,
+        },
+        'gel-oestrodose': {
+          value: pivot / 0.75,
+          unit: 'pressions/jour',
+          tubeNote: `≈ ${(pivot / 0.75 / 64 * 30).toFixed(1)} tubes Oestrodose / mois (64 press./tube)`,
+        },
+        patch: {
+          value: pivot * 100,
+          unit: 'µg/24h',
+          tubeNote: null,
+        },
+      };
+
+      const inputIsSubl = forme === 'comprime';
+      let html = '';
+
+      // ── Global warning si voie sublinguale en entrée ───────────
+      if (inputIsSubl) {
+        html += `
+          <div class="global-warning">
+            <span class="gw-icon">⛔</span>
+            <div>
+              <strong>Conversions particulièrement approximatives depuis le sublingual.</strong><br>
+              La voie sublinguale et les voies transdermiques ont des profils pharmacocinétiques
+              radicalement différents : pic élevé suivi d'une décroissance rapide pour le sublingual,
+              contre des taux stables pour les voies transdermiques. Il n'existe pas de données de
+              bioéquivalence publiées entre ces voies. Ces chiffres sont de simples ordres de grandeur
+              et ne doivent pas être utilisés pour des ajustements de dose précis.
+            </div>
+          </div>`;
+      }
+
+      html += `<div class="input-summary">
+        Posologie saisie : <strong>${posologie} ${equivalents[forme].unit} — ${formLabels[forme]}</strong>
+      </div>`;
+
+      html += '<div class="equiv-grid">';
+
+      for (const [key, data] of Object.entries(equivalents)) {
+        if (key === forme) continue;
+
+        const reliable = transdermal.has(forme) && transdermal.has(key);
+        const badgeHtml = reliable
+          ? '<span class="badge reliable">Fiable ✓</span>'
+          : '<span class="badge approximate">Approximatif ⚠</span>';
+        const cardClass = reliable ? 'reliable' : 'approximate';
+
+        // Note inline si sublingual en sortie mais pas en entrée
+        let inlineNote = '';
+        if (!inputIsSubl && key === 'comprime') {
+          inlineNote = `
+            <div style="font-size:0.78rem;color:var(--approx);margin-bottom:10px;">
+              ⚠ Conversion transdermique → sublingual particulièrement approximative
+              (profils PK radicalement différents, pas de données de bioéquivalence).
+            </div>`;
         }
 
-        function convertir() {
-            const forme = document.getElementById('forme').value;
-            let resultat = '';
-            let posologie;
+        html += `
+          <div class="equiv-card ${cardClass}">
+            <div class="equiv-header">
+              <span class="form-name">${formLabels[key]}</span>
+              ${badgeHtml}
+            </div>
+            ${inlineNote}
+            <div class="equiv-value">${data.value.toFixed(2)} ${data.unit}</div>
+            ${data.tubeNote ? `<div class="tube-count">${data.tubeNote}</div>` : ''}
+            <details class="dosing-details">
+              <summary>⏱ Quand doser ?</summary>
+              <div class="dosing-body">${dosingNotes[key]}</div>
+            </details>
+          </div>`;
+      }
 
-            if (forme === 'comprime') {
-                posologie = parseFloat(document.getElementById('posologie-comprime').value);
-                resultat += `<p class="highlight">Posologie comprimés (voie sublinguale) : ${posologie} mg/jour</p>`;
-                const patch = posologie * 100;
-                const gel_estreva = posologie * 2;
-                const gel_oestrodose = posologie * (1 / 0.75);
-                resultat += `Équivalent en patch : ${patch.toFixed(2)} µg/24h<br>`;
-                resultat += `Équivalent en gel Estreva : ${gel_estreva.toFixed(2)} pressions/jour<br>`;
-                resultat += `Équivalent en gel Oestrodose : ${gel_oestrodose.toFixed(2)} pressions/jour<br>`;
-                resultat += `<br><span class="highlight">Nombre de tubes de gel par mois :</span><br>`;
-                resultat += `Estreva : ${(gel_estreva / 100 * 30).toFixed(2)} tubes<br>`;
-                resultat += `Oestrodose : ${(gel_oestrodose / 64 * 30).toFixed(2)} tubes<br>`;
-            } else if (forme === 'gel-estreva') {
-                posologie = parseFloat(document.getElementById('posologie-gel').value);
-                resultat += `<p class="highlight">Posologie gel Estreva : ${posologie} pressions/jour</p>`;
-                const comprimé = posologie / 2;
-                const patch = comprimé * 100;
-                const gel_oestrodose = comprimé * (1 / 0.75);
-                resultat += `Équivalent en comprimé (voie sublinguale) : ${comprimé.toFixed(2)} mg/jour<br>`;
-                resultat += `Équivalent en patch : ${patch.toFixed(2)} µg/24h<br>`;
-                resultat += `Équivalent en gel Oestrodose : ${gel_oestrodose.toFixed(2)} pressions/jour<br>`;
-                resultat += `<br><span class="highlight">Nombre de tubes de gel par mois :</span><br>`;
-                resultat += `Estreva : ${(posologie / 100 * 30).toFixed(2)} tubes<br>`;
-                resultat += `Oestrodose : ${(gel_oestrodose / 64 * 30).toFixed(2)} tubes<br>`;
-            } else if (forme === 'gel-oestrodose') {
-                posologie = parseFloat(document.getElementById('posologie-gel').value);
-                resultat += `<p class="highlight">Posologie gel Oestrodose : ${posologie} pressions/jour</p>`;
-                const comprimé = posologie * 0.75;
-                const patch = comprimé * 100;
-                const gel_estreva = comprimé * 2;
-                resultat += `Équivalent en comprimé (voie sublinguale) : ${comprimé.toFixed(2)} mg/jour<br>`;
-                resultat += `Équivalent en patch : ${patch.toFixed(2)} µg/24h<br>`;
-                resultat += `Équivalent en gel Estreva : ${gel_estreva.toFixed(2)} pressions/jour<br>`;
-                resultat += `<br><span class="highlight">Nombre de tubes de gel par mois :</span><br>`;
-                resultat += `Estreva : ${(gel_estreva / 100 * 30).toFixed(2)} tubes<br>`;
-                resultat += `Oestrodose : ${(posologie / 64 * 30).toFixed(2)} tubes<br>`;
-            } else if (forme === 'patch') {
-                posologie = parseFloat(document.getElementById('posologie-patch').value);
-                resultat += `<p class="highlight">Posologie patch : ${posologie} µg/24h</p>`;
-                const comprimé = posologie / 100;
-                const gel_estreva = comprimé * 2;
-                const gel_oestrodose = comprimé * (1 / 0.75);
-                resultat += `Équivalent en comprimé (voie sublinguale) : ${comprimé.toFixed(2)} mg/jour<br>`;
-                resultat += `Équivalent en gel Estreva : ${gel_estreva.toFixed(2)} pressions/jour<br>`;
-                resultat += `Équivalent en gel Oestrodose : ${gel_oestrodose.toFixed(2)} pressions/jour<br>`;
-                resultat += `<br><span class="highlight">Nombre de tubes de gel par mois :</span><br>`;
-                resultat += `Estreva : ${(gel_estreva / 100 * 30).toFixed(2)} tubes<br>`;
-                resultat += `Oestrodose : ${(gel_oestrodose / 64 * 30).toFixed(2)} tubes<br>`;
-            }
-
-            document.getElementById('resultat').innerHTML = resultat;
-            document.getElementById('note-equivalences').style.display = 'block';
-        }
-    </script>
+      html += '</div>';
+      el.innerHTML = html;
+    }
+  </script>
 </body>
 </html>

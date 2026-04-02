@@ -1,223 +1,359 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <link rel="icon" href="favicon.png" type="image/x-icon">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Convertisseur Hormonal</title>
-    <style>
-        body {
-            font-family: monospace;
-            background-color: #121212;
-            color: #FFFFFF;
-            margin: 20px;
-        }
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 50px;
-        }
-       /* Style du bouton Accueil */
-.accueil-btn {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: #007BFF; /* Couleur de fond du bouton */
-    color: white;
-    padding: 10px 15px;
-    text-decoration: none;
-    border-radius: 5px;
-    font-family: monospace;
-    font-size: 16px;
-}
-
-.accueil-btn:hover {
-    background-color: #0056b3; /* Changement de couleur au survol */
-}
- .module {
-            width: 350px; /* Largeur ajustée */
-            padding: 20px;
-            background-color: #1E1E1E;
-            border: 1px solid #333;
-            border-radius: 10px;
-            min-height: 500px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-        input, select {
-            width: 100%;
-            padding: 5px;
-            margin-top: 5px;
-            background-color: #333;
-            color: #FFF;
-            border: 1px solid #666;
-            font-family: monospace;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #007BFF;
-            color: #FFF;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            font-family: monospace;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #1E1E1E;
-            border: 1px solid #333;
-            min-height: 120px; /* Hauteur minimale pour éviter les décalages */
-        }
-        .highlight {
-            font-weight: bold;
-            color: #00A0FF;
-        }
-        .note {
-            font-weight: bold;
-            color: #FF69B4;
-            font-size: 1.2em; /* Taille de police plus grande */
-            margin-top: 20px;
-            text-align: center;
-            width: 100%;
-            position: absolute;
-            bottom: 10px;
-            display: none; /* Cache par défaut */
-            animation: clignote 1s infinite alternate; /* Clignotement lent */
-        }
-        @keyframes clignote {
-            from { opacity: 1; }
-            to { opacity: 0.3; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THSadvisor — Convertisseur d'unités</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --pink: #f778ba;
+      --warning: #d29922;
+      --warning-bg: rgba(210, 153, 34, 0.08);
+      --warning-border: rgba(210, 153, 34, 0.35);
+      --danger: #f85149;
+      --danger-bg: rgba(248, 81, 73, 0.08);
+      --danger-border: rgba(248, 81, 73, 0.35);
+      --radius: 6px;
+      --radius-lg: 10px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 0.85rem;
+    }
+    .topbar a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .topbar a:hover { text-decoration: underline; }
+    .topbar .sep { color: var(--border); }
+    .topbar .current { color: var(--muted); }
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0 0 28px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+    .modules {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .module {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+    .module h2 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0 0 20px;
+      color: var(--text);
+    }
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    input[type="number"], select {
+      width: 100%;
+      padding: 9px 11px;
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+      transition: border-color 0.15s;
+    }
+    input[type="number"]:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    select option { background: var(--surface2); }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-bottom: 18px;
+    }
+    button:hover { opacity: 0.85; }
+    .result-block {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 5px 0;
+      font-size: 0.88rem;
+      border-bottom: 1px solid var(--surface2);
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-row .unit { color: var(--muted); }
+    .result-row .val { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .result-row.primary .unit { color: var(--pink); font-weight: 500; }
+    .result-row.primary .val { color: var(--pink); font-size: 1rem; }
+    .targets-box {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--surface2);
+      border-radius: var(--radius);
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .targets-box strong { color: var(--text); }
+    .alert-box {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      border-radius: var(--radius);
+      font-size: 0.8rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .alert-box strong { color: var(--warning); }
+    .error-msg {
+      font-size: 0.82rem;
+      color: var(--muted);
+      padding: 8px 0;
+    }
+  </style>
 </head>
 <body>
-     <a href="index.html" class="accueil-btn">Accueil</a>
-    <div class="container">
-        <!-- Module Testostérone -->
-        <div class="module">
-            <h2>Convertisseur de Testostérone</h2>
-            <label for="testosterone">Valeur de testostérone :</label>
-            <input type="number" id="testosterone" placeholder="Entrez la valeur">
-            
-            <label for="testosterone-unit">Unité :</label>
-            <select id="testosterone-unit">
-                <option value="nmol/L">nmol/L</option>
-                <option value="ng/dL">ng/dL</option>
-                <option value="ng/mL">ng/mL</option>
-                <option value="ng/L">ng/L</option>
-                <option value="µg/L">µg/L</option>
-            </select>
-            <button onclick="convertTestosterone()">Convert</button>
-            <div id="testosterone-result" class="result"></div>
-        </div>
+  <nav class="topbar">
+    <a href="index.html">← Accueil</a>
+    <span class="sep">/</span>
+    <span class="current">Convertisseur d'unités</span>
+  </nav>
 
-        <!-- Module Oestradiol -->
-        <div class="module">
-            <h2>Convertisseur d'Œstradiol</h2>
-            <label for="oestradiol">Valeur d'oestradiol :</label>
-            <input type="number" id="oestradiol" placeholder="Entrez la valeur">
-            
-            <label for="oestradiol-unit">Unité :</label>
-            <select id="oestradiol-unit">
-                <option value="pmol/L">pmol/L</option>
-                <option value="pg/dL">pg/dL</option>
-                <option value="pg/mL">pg/mL</option>
-                <option value="ng/L">ng/L</option>
-            </select>
-            
-            <button onclick="convertOestradiol()">Convert</button>
-            <div id="oestradiol-result" class="result"></div>
+  <main>
+    <h1>Convertisseur d'unités hormonales</h1>
+
+    <div class="modules">
+
+      <!-- ── Testostérone ────────────────────────────── -->
+      <div class="module">
+        <h2>Testostérone</h2>
+
+        <label for="testosterone">Valeur</label>
+        <input type="number" id="testosterone" placeholder="Entrez la valeur" min="0" step="any">
+
+        <label for="testosterone-unit">Unité</label>
+        <select id="testosterone-unit">
+          <option value="nmol/L">nmol/L</option>
+          <option value="ng/dL">ng/dL</option>
+          <option value="ng/mL">ng/mL</option>
+          <option value="ng/L">ng/L</option>
+          <option value="µg/L">µg/L</option>
+        </select>
+
+        <button onclick="convertTestosterone()">Convertir</button>
+
+        <div id="testosterone-result"></div>
+
+        <div class="alert-box">
+          <strong>⚠ Bicalutamide :</strong> la testostérone totale n'est <em>pas interprétable</em>
+          chez une patiente sous bicalutamide — ce médicament est un antagoniste des récepteurs
+          aux androgènes et ne supprime pas la production de testostérone. Le dosage reste élevé
+          même si l'effet androgénique est bloqué.
         </div>
+      </div>
+
+      <!-- ── Œstradiol ───────────────────────────────── -->
+      <div class="module">
+        <h2>Œstradiol</h2>
+
+        <label for="oestradiol">Valeur</label>
+        <input type="number" id="oestradiol" placeholder="Entrez la valeur" min="0" step="any">
+
+        <label for="oestradiol-unit">Unité</label>
+        <select id="oestradiol-unit">
+          <option value="pmol/L">pmol/L</option>
+          <option value="pg/dL">pg/dL</option>
+          <option value="pg/mL">pg/mL</option>
+          <option value="ng/L">ng/L</option>
+        </select>
+
+        <button onclick="convertOestradiol()">Convertir</button>
+
+        <div id="oestradiol-result"></div>
+      </div>
+
     </div>
+  </main>
 
-    <p id="asterisk-note" class="note">*Exemple d'objectif biologique, à adapter bien sûr au cas par cas et à la clinique.</p>
+  <script>
+    function fmt(v) {
+      if (isNaN(v) || !isFinite(v)) return '—';
+      return (v % 1 === 0) ? v.toString() : parseFloat(v.toFixed(4)).toString();
+    }
 
-    <script>
-        // Fonction pour supprimer les décimales nulles
-        function formatNumber(value) {
-            return (value % 1 === 0) ? value.toString() : value.toFixed(6).replace(/\.?0+$/, "");
-        }
-        // Afficher et faire clignoter l'astérisque
-        function showAsterisk() {
-            const asteriskNote = document.getElementById('asterisk-note');
-            asteriskNote.style.display = 'block'; // Affiche l'astérisque
-        }
+    function convertTestosterone() {
+      const value = parseFloat(document.getElementById('testosterone').value);
+      const unit  = document.getElementById('testosterone-unit').value;
+      const el    = document.getElementById('testosterone-result');
 
-        // Convertir Testostérone
-        function convertTestosterone() {
-            const value = parseFloat(document.getElementById('testosterone').value);
-            const unit = document.getElementById('testosterone-unit').value;
-            let ngPerMl, ngPerL, ugPerL, nmolPerL, ngPerDl;
+      if (isNaN(value) || value < 0) {
+        el.innerHTML = '<p class="error-msg">Entrez une valeur valide.</p>';
+        return;
+      }
 
-            // Conversion de la valeur d'origine
-            if (unit === "nmol/L") {
-                ngPerMl = value * 0.288;
-            } else if (unit === "ng/dL") {
-                ngPerMl = value * 0.01;
-            } else if (unit === "ng/mL") {
-                ngPerMl = value;
-            } else if (unit === "ng/L") {
-                ngPerMl = value / 1000;
-            } else if (unit === "µg/L") {
-                ngPerMl = value * 1000;
-            }
-            // Calcul des autres unités
-            ngPerL = ngPerMl * 1000;
-            ugPerL = ngPerL / 1000;
-            nmolPerL = ngPerMl / 0.288;
-            ngPerDl = ngPerMl * 100;
+      let ngml;
+      if      (unit === 'nmol/L') ngml = value * 0.288;
+      else if (unit === 'ng/dL')  ngml = value * 0.01;
+      else if (unit === 'ng/mL')  ngml = value;
+      else if (unit === 'ng/L')   ngml = value / 1000;
+      else if (unit === 'µg/L')   ngml = value;
 
-            // Affichage du résultat
-            document.getElementById('testosterone-result').innerHTML = `
-                <p><span class="highlight">ng/mL : ${formatNumber(ngPerMl)} (Objectif THSm : 2.5 - 9 ng/mL ; Objectif THSf : < 0.5 ng/mL*)</span></p>
-                <p>ng/L : ${formatNumber(ngPerL)}</p>
-                <p>µg/L : ${formatNumber(ugPerL)}</p>
-                <p>nmol/L : ${formatNumber(nmolPerL)}</p>
-                <p>ng/dL : ${formatNumber(ngPerDl)}</p>
-            `;
-            
-            showAsterisk(); // Affiche l'astérisque après la conversion
-        }
+      const ngl    = ngml * 1000;
+      const ugl    = ngml;          // µg/L = ng/mL numerically
+      const nmoll  = ngml / 0.288;
+      const ngdl   = ngml * 100;
 
-        // Convertir Œstradiol
-        function convertOestradiol() {
-            const value = parseFloat(document.getElementById('oestradiol').value);
-            const unit = document.getElementById('oestradiol-unit').value;
-            let pgPerMl, pmolPerL, pgPerDl, ngPerL;
-            // Conversion de la valeur d'origine
-            if (unit === "pmol/L") {
-                pgPerMl = value * 0.272;  // 1 pmol/L = 0.272 pg/mL
-            } else if (unit === "pg/dL") {
-                pgPerMl = value / 100;    // 1 pg/dL = 0.01 pg/mL
-            } else if (unit === "pg/mL") {
-                pgPerMl = value;
-            } else if (unit === "ng/L") {
-                pgPerMl = value * 1;      // 1 ng/L = 1 pg/mL
-            }
+      // Interprétation cible THSf
+      let interp = '';
+      if (ngml < 0.30)
+        interp = '<span style="color:#3fb950">✓ Dans la cible préférentielle (&lt; 0,30 ng/mL)</span>';
+      else if (ngml < 0.50)
+        interp = '<span style="color:#d29922">~ Acceptable (0,30–0,50 ng/mL)</span>';
+      else
+        interp = '<span style="color:#f85149">↑ Au-dessus de la cible (&gt; 0,50 ng/mL)</span>';
 
-            // Calcul des autres unités
-            pmolPerL = pgPerMl / 0.272;
-            pgPerDl = pgPerMl * 100;
-            ngPerL = pgPerMl / 1;
+      el.innerHTML = `
+        <div class="result-block">
+          <div class="result-row primary">
+            <span class="unit">ng/mL</span>
+            <span class="val">${fmt(ngml)}</span>
+          </div>
+          <div class="result-row">
+            <span class="unit">ng/dL</span>
+            <span class="val">${fmt(ngdl)}</span>
+          </div>
+          <div class="result-row">
+            <span class="unit">nmol/L</span>
+            <span class="val">${fmt(nmoll)}</span>
+          </div>
+          <div class="result-row">
+            <span class="unit">ng/L</span>
+            <span class="val">${fmt(ngl)}</span>
+          </div>
+          <div class="result-row">
+            <span class="unit">µg/L</span>
+            <span class="val">${fmt(ugl)}</span>
+          </div>
+          <div class="targets-box">
+            <strong>THSf :</strong> &lt; 0,30 ng/mL préférable — &lt; 0,50 ng/mL acceptable<br>
+            <strong>THSm :</strong> 2,5–9 ng/mL<br>
+            <br>
+            ${interp}
+          </div>
+        </div>`;
+    }
 
-            // Affichage du résultat
-            document.getElementById('oestradiol-result').innerHTML = `
-                <p><span class="highlight">pg/mL : ${formatNumber(pgPerMl)} (Objectif THSf : 100-400 pg/mL*)</span></p>
-                <p>pmol/L : ${formatNumber(pmolPerL)}</p>
-                <p>pg/dL : ${formatNumber(pgPerDl)}</p>
-                <p>ng/L : ${formatNumber(ngPerL)}</p>
-            `;
+    function convertOestradiol() {
+      const value = parseFloat(document.getElementById('oestradiol').value);
+      const unit  = document.getElementById('oestradiol-unit').value;
+      const el    = document.getElementById('oestradiol-result');
 
-            showAsterisk(); // Affiche l'astérisque après la conversion
-        }
-    </script>
+      if (isNaN(value) || value < 0) {
+        el.innerHTML = '<p class="error-msg">Entrez une valeur valide.</p>';
+        return;
+      }
+
+      let pgml;
+      if      (unit === 'pmol/L') pgml = value * 0.272;
+      else if (unit === 'pg/dL')  pgml = value / 100;
+      else if (unit === 'pg/mL')  pgml = value;
+      else if (unit === 'ng/L')   pgml = value;
+
+      const pmoll = pgml / 0.272;
+      const pgdl  = pgml * 100;
+      const ngl   = pgml;
+
+      // Interprétation cible THSf
+      let interp = '';
+      if (pgml < 100)
+        interp = '<span style="color:#f85149">↓ Sous la cible (&lt; 100 pg/mL)</span>';
+      else if (pgml <= 200)
+        interp = '<span style="color:#3fb950">✓ Zone cible standard (100–200 pg/mL)</span>';
+      else if (pgml <= 300)
+        interp = '<span style="color:#d29922">~ Acceptable — voie non-orale, sans FDRTEV majeur (200–300 pg/mL)</span>';
+      else
+        interp = '<span style="color:#f85149">↑ Au-dessus de la zone acceptable (&gt; 300 pg/mL)</span>';
+
+      el.innerHTML = `
+        <div class="result-block">
+          <div class="result-row primary">
+            <span class="unit">pg/mL</span>
+            <span class="val">${fmt(pgml)}</span>
+          </div>
+          <div class="result-row">
+            <span class="unit">pmol/L</span>
+            <span class="val">${fmt(pmoll)}</span>
+          </div>
+          <div class="result-row">
+            <span class="unit">pg/dL</span>
+            <span class="val">${fmt(pgdl)}</span>
+          </div>
+          <div class="result-row">
+            <span class="unit">ng/L</span>
+            <span class="val">${fmt(ngl)}</span>
+          </div>
+          <div class="targets-box">
+            <strong>THSf :</strong> 100–200 pg/mL (cible standard)<br>
+            200–300 pg/mL acceptable (voie non-orale, sans FDRTEV majeur)<br>
+            <br>
+            ${interp}
+          </div>
+        </div>`;
+    }
+  </script>
 </body>
 </html>
