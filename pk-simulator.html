@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THSadvisor — Simulateur PK Œstradiol</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --pink: #f778ba;
+      --warning: #d29922;
+      --reliable: #3fb950;
+      --danger: #f85149;
+      --radius: 6px;
+      --radius-lg: 10px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      font-size: .85rem;
+    }
+    .topbar a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .topbar a:hover { text-decoration: underline; }
+    .topbar .sep { color: var(--border); }
+    .topbar .current { color: var(--muted); }
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 32px 16px 56px;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -.01em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: .85rem;
+      margin-bottom: 24px;
+    }
+
+    /* ── Controls ── */
+    .controls-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .ctrl-group { display: flex; flex-direction: column; gap: 8px; }
+    .ctrl-label {
+      font-size: .74rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .route-tabs, .pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .route-tab {
+      padding: 6px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: .82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s;
+      line-height: 1.4;
+    }
+    .route-tab:hover { border-color: var(--accent); color: var(--text); }
+    .route-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .pill {
+      padding: 5px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: .82rem;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .pill:hover { border-color: var(--accent); color: var(--text); }
+    .pill.active {
+      background: rgba(88,166,255,.14);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ── Chart ── */
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 12px 10px;
+      margin-bottom: 16px;
+    }
+    .chart-container { position: relative; height: 300px; }
+
+    /* ── Metrics ── */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 500px) { .metrics-row { grid-template-columns: 1fr; } }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+    }
+    .metric-lbl {
+      font-size: .7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    .metric-val {
+      font-size: 1.35rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+    }
+    .metric-sub { font-size: .72rem; color: var(--muted); margin-top: 3px; }
+
+    /* ── Note ── */
+    .note-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      font-size: .82rem;
+      line-height: 1.65;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .note-box strong { color: var(--accent); }
+
+    /* ── Zone legend ── */
+    .zone-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 22px;
+      margin-bottom: 16px;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+    .zone-item { display: flex; align-items: center; gap: 7px; }
+    .zdot {
+      width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0;
+    }
+    .zdot.green { background: rgba(63,185,80,.4);  border: 1px solid rgba(63,185,80,.7); }
+    .zdot.amber { background: rgba(210,153,34,.4); border: 1px solid rgba(210,153,34,.7); }
+    .zdot.red   { background: rgba(248,81,73,.35); border: 1px solid rgba(248,81,73,.6); }
+
+    /* ── Disclaimer & refs ── */
+    .disclaimer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      font-size: .78rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 12px;
+    }
+    .disclaimer strong { color: var(--text); }
+    .refs { font-size: .74rem; color: var(--muted); line-height: 1.7; }
+    .refs strong { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav class="topbar">
+  <a href="index.html">← Accueil</a>
+  <span class="sep">/</span>
+  <span class="current">Simulateur PK — Œstradiol</span>
+</nav>
+
+<main>
+  <h1>Simulateur pharmacocinétique — Œstradiol</h1>
+  <p class="subtitle">Modèle théorique simplifié — illustratif, à des fins pédagogiques uniquement.</p>
+
+  <!-- Controls -->
+  <div class="controls-card">
+    <div class="ctrl-group">
+      <span class="ctrl-label">Voie d'administration</span>
+      <div class="route-tabs" id="route-tabs">
+        <button class="route-tab active" data-route="oral">Per os</button>
+        <button class="route-tab" data-route="sublingual">Sublingual</button>
+        <button class="route-tab" data-route="gel-estreva">Gel Estreva</button>
+        <button class="route-tab" data-route="gel-oestrodose">Gel Oestrodose</button>
+        <button class="route-tab" data-route="patch">Patch</button>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label" id="dose-label">Dose</span>
+      <div class="pill-group" id="dose-pills"></div>
+    </div>
+    <div class="ctrl-group" id="freq-group">
+      <span class="ctrl-label">Fréquence</span>
+      <div class="pill-group" id="freq-pills"></div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-card">
+    <div class="chart-container">
+      <canvas id="pk-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- Metrics -->
+  <div class="metrics-row">
+    <div class="metric-card">
+      <div class="metric-lbl">Cmax estimée</div>
+      <div class="metric-val" id="m-cmax">—</div>
+      <div class="metric-sub" id="m-cmax-sub">pg/mL</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-lbl">Ctrough estimée</div>
+      <div class="metric-val" id="m-ctrough">—</div>
+      <div class="metric-sub" id="m-ctrough-sub">pg/mL</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-lbl">Temps en cible (100–200 pg/mL)</div>
+      <div class="metric-val" id="m-pct">—</div>
+      <div class="metric-sub" id="m-pct-sub"></div>
+    </div>
+  </div>
+
+  <!-- Route-specific note -->
+  <div id="route-note" class="note-box"></div>
+
+  <!-- Zone legend -->
+  <div class="zone-legend">
+    <div class="zone-item"><span class="zdot green"></span>100–200 pg/mL — Cible standard THSf</div>
+    <div class="zone-item"><span class="zdot amber"></span>200–300 pg/mL — Acceptable (voie non-orale, sans FDRTEV majeur)</div>
+    <div class="zone-item"><span class="zdot red"></span>70–100 pg/mL — Creux sublingual acceptable si asymptomatique</div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer">
+    <strong>Modèle théorique simplifié.</strong>
+    Paramètres PK (ka, ke, biodisponibilité, facteurs d'échelle) issus de la littérature — valeurs moyennes ;
+    la variabilité interindividuelle est importante. Ce simulateur est illustratif et n'est pas un outil de prescription.
+    <strong>Absence de données de bioéquivalence robustes entre les voies</strong> — les conversions
+    transdermique ↔ oral/sublingual restent très approximatives.
+  </div>
+
+  <!-- References -->
+  <div class="refs">
+    <strong>Références :</strong>
+    Doll et al. <em>Endocr Pract</em> 2022 ·
+    Kuhl. <em>Climacteric</em> 2005 ·
+    Cirrincione et al. <em>Eur J Endocrinol</em> 2022 ·
+    Wiepjes et al. <em>J Bone Miner Res</em> 2019 ·
+    Fransgenre / biyokea 2025
+  </div>
+</main>
+
+<!-- Chart.js 4 + Annotation plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  CONFIGURATION PAR VOIE
+// ════════════════════════════════════════════════════════════════
+
+const ROUTES = {
+  // ── Per os ────────────────────────────────────────────────────
+  // Biexponentiel : absorption lente (ka=0.4/h), élimination lente (ke=0.06/h, t½≈12h
+  // via réservoir estrone). Biodisponibilité ~5% incluse dans le facteur d'échelle.
+  // Pic à ~5-6h, profil large. Calibration : 2 mg/j → moy. ~70 pg/mL SS.
+  oral: {
+    label: 'Per os — comprimé avalé (Provames, Oromone)',
+    doseLabel: 'Dose journalière',
+    doses: [1, 2, 4, 6], defaultDose: 2, doseUnit: 'mg/j',
+    freqs: [1, 2], defaultFreq: 1,
+    freqLabels: {1:'1×/jour', 2:'2×/jour'},
+    mgPerUnit: 1,
+    model: 'biexp', ka: 0.4, ke: 0.06, scale: 60,
+    timeWindow: 96, dt: 0.5, analysisStart: 48,
+    xTickStep: 12, xUnit: 'h',
+  },
+
+  // ── Sublingual ────────────────────────────────────────────────
+  // Biexponentiel : absorption rapide (ka=3/h), élimination rapide (ke=0.35/h, t½≈2h).
+  // Biodisponibilité ~25-50% incluse dans l'échelle (>5× l'oral).
+  // Pic à ~1h, chute rapide. Calibration : 1 mg/prise → Cmax ~250 pg/mL.
+  sublingual: {
+    label: 'Sublingual — comprimé laissé sous la langue',
+    doseLabel: 'Dose par prise',
+    doses: [0.5, 1, 2, 4], defaultDose: 1, doseUnit: 'mg/prise',
+    freqs: [1, 2, 3, 4], defaultFreq: 2,
+    freqLabels: {1:'1×/jour', 2:'2×/jour', 3:'3×/jour', 4:'4×/jour'},
+    mgPerUnit: 1,
+    model: 'biexp', ka: 3.0, ke: 0.35, scale: 375,
+    timeWindow: 48, dt: 0.15, analysisStart: 12,
+    xTickStep: 6, xUnit: 'h',
+  },
+
+  // ── Gel Estreva ───────────────────────────────────────────────
+  // Biexponentiel très lent (ka=0.1/h, ke=0.05/h) simulant la libération
+  // cutanée progressive et la stabilité des taux transdermiques.
+  // Pic à ~14h, variation Cmax/Ctrough faible. État d'équilibre en ~5-7 jours.
+  // Calibration : 4 press. (2 mg/j) → SS Cmax ~105, SS Ctrough ~79 pg/mL.
+  'gel-estreva': {
+    label: 'Gel Estreva — 0,5 mg/pression',
+    doseLabel: 'Pressions / jour',
+    doses: [2, 4, 6, 8], defaultDose: 4, doseUnit: 'pressions/j',
+    freqs: [1], defaultFreq: 1,
+    freqLabels: {1:'1×/jour'},
+    mgPerUnit: 0.5,
+    model: 'biexp', ka: 0.1, ke: 0.05, scale: 120,
+    timeWindow: 240, dt: 1, analysisStart: 120,
+    xTickStep: 24, xUnit: 'd',
+  },
+
+  // ── Gel Oestrodose ────────────────────────────────────────────
+  // Identique Estreva, 0,75 mg/pression.
+  'gel-oestrodose': {
+    label: 'Gel Oestrodose — 0,75 mg/pression',
+    doseLabel: 'Pressions / jour',
+    doses: [1, 2, 3, 4], defaultDose: 2, doseUnit: 'pressions/j',
+    freqs: [1], defaultFreq: 1,
+    freqLabels: {1:'1×/jour'},
+    mgPerUnit: 0.75,
+    model: 'biexp', ka: 0.1, ke: 0.05, scale: 120,
+    timeWindow: 240, dt: 1, analysisStart: 120,
+    xTickStep: 24, xUnit: 'd',
+  },
+
+  // ── Patch ─────────────────────────────────────────────────────
+  // Infusion continue → montée vers plateau (Css = 2,6 × dose µg/24h).
+  // ke=0.05/h → plateau atteint à ~90% en 48h, ~97% en 72h.
+  // Calibration : 50 µg/24h → Css ~130 pg/mL.
+  patch: {
+    label: 'Patch transdermique (Dermestril, Femsept…)',
+    doseLabel: 'Dose',
+    doses: [25, 50, 75, 100], defaultDose: 50, doseUnit: 'µg/24h',
+    freqs: [1], defaultFreq: 1,
+    freqLabels: {1:''},
+    mgPerUnit: 1,
+    model: 'patch', cssFactor: 2.6, ke: 0.05,
+    timeWindow: 96, dt: 0.5, analysisStart: 48,
+    xTickStep: 24, xUnit: 'h',
+  },
+};
+
+// ════════════════════════════════════════════════════════════════
+//  NOTES CLINIQUES PAR VOIE
+// ════════════════════════════════════════════════════════════════
+const ROUTE_NOTES = {
+  oral:
+    `<strong>Quand doser ?</strong> Au creux — 8–12 h après la dernière prise (si prise unique par jour).<br><br>
+    <span style="color:var(--warning)">⚠ Immunodosages :</span> les immunodosages courants utilisés en France surestiment
+    fréquemment les taux sous estradiol oral (interférence des métabolites estroniques). Cibler un creux
+    <strong>&gt; 150 pg/mL</strong> pour compenser cette surestimation
+    (Cirrincione et al., <em>Eur J Endocrinol</em> 2022).<br><br>
+    La queue lente de la courbe reflète la <strong>conversion hépatique en estrone</strong> (réservoir), qui ralentit l'élimination effective.`,
+
+  sublingual:
+    `<strong>Quand doser ?</strong> Au creux, juste avant la prise suivante.<br>
+    Un creux ≥ 70–80 pg/mL est acceptable en l'absence de symptômes.<br><br>
+    Le pic élevé suivi d'une chute rapide est caractéristique du sublingual (pic ~1 h, t½ élimination ~2 h).
+    Fractionner la dose en <strong>3×–4×/jour</strong> lisse les fluctuations et améliore le temps en cible.`,
+
+  'gel-estreva':
+    `<strong>Quand doser ?</strong> À n'importe quel moment de la journée — les taux sont stables.<br><br>
+    <span style="color:var(--warning)">⚠</span> Prélever du côté du bras sur lequel on n'applique <strong>pas</strong> le gel,
+    et ne pas appliquer le gel sur ce bras le jour du dosage.<br><br>
+    Le gel met <strong>5–7 jours</strong> à atteindre l'état d'équilibre — visible sur le graphique (courbe sur 10 jours).`,
+
+  'gel-oestrodose':
+    `<strong>Quand doser ?</strong> À n'importe quel moment de la journée — les taux sont stables.<br><br>
+    <span style="color:var(--warning)">⚠</span> Prélever du côté du bras sur lequel on n'applique <strong>pas</strong> le gel,
+    et ne pas appliquer le gel sur ce bras le jour du dosage.<br><br>
+    Le gel met <strong>5–7 jours</strong> à atteindre l'état d'équilibre — visible sur le graphique (courbe sur 10 jours).`,
+
+  patch:
+    `<strong>Quand doser ?</strong> Au creux, juste avant le changement du patch (fin de période de port).<br><br>
+    Le plateau est atteint en <strong>48–72 h</strong>. La courbe illustre la montée progressive lors de l'application
+    d'un premier patch (ou reprise après interruption de traitement).`,
+};
+
+// ════════════════════════════════════════════════════════════════
+//  MODÈLES PK
+// ════════════════════════════════════════════════════════════════
+
+/** Biexponentiel (absorption + élimination 1er ordre).
+ *  Renvoie une concentration positive si ka > ke. */
+function biexp(ka, ke, scale, dose_mg, t) {
+  if (t <= 0) return 0;
+  return scale * dose_mg * (Math.exp(-ke * t) - Math.exp(-ka * t));
+}
+
+function computeCurve(routeKey, doseValue, freq) {
+  const cfg = ROUTES[routeKey];
+  const T = cfg.timeWindow, dt = cfg.dt;
+  const N = Math.round(T / dt) + 1;
+  const times = Array.from({length: N}, (_, i) => parseFloat((i * dt).toFixed(3)));
+  const concs = new Array(N).fill(0);
+
+  if (cfg.model === 'patch') {
+    // Infusion continue → montée vers Css = cssFactor × dose
+    const Css = cfg.cssFactor * doseValue;
+    times.forEach((t, i) => { concs[i] = Css * (1 - Math.exp(-cfg.ke * t)); });
+
+  } else {
+    // Superposition biexponentielle de doses répétées
+    const tau     = 24 / freq;
+    const nDoses  = Math.floor(T / tau) + 1;
+    const dose_mg = doseValue * cfg.mgPerUnit;
+    times.forEach((t, i) => {
+      for (let d = 0; d < nDoses; d++) {
+        const tn = d * tau;
+        if (t >= tn) concs[i] += biexp(cfg.ka, cfg.ke, cfg.scale, dose_mg, t - tn);
+      }
+    });
+  }
+
+  return {times, concs};
+}
+
+/** Métriques calculées sur la fenêtre d'analyse (état quasi-stable). */
+function computeMetrics(times, concs, analysisStart) {
+  const pts = times.map((t, i) => ({t, c: concs[i]})).filter(p => p.t >= analysisStart);
+  if (!pts.length) return {cmax: 0, ctrough: 0, pctTarget: 0};
+  const vals = pts.map(p => p.c);
+  const cmax    = Math.max(...vals);
+  const ctrough = Math.min(...vals);
+  const pct     = Math.round(100 * vals.filter(c => c >= 100 && c <= 200).length / vals.length);
+  return {cmax, ctrough, pctTarget: pct};
+}
+
+// ════════════════════════════════════════════════════════════════
+//  CHART
+// ════════════════════════════════════════════════════════════════
+let pkChart = null;
+
+function drawChart(times, concs) {
+  const cfg = ROUTES[currentRoute];
+
+  // Détruire le chart précédent (options changent à chaque voie)
+  if (pkChart) { pkChart.destroy(); pkChart = null; }
+
+  const maxC = Math.max(...concs, 300);
+  const yMax = Math.max(400, Math.ceil(maxC * 1.18 / 50) * 50);
+
+  const ctx = document.getElementById('pk-chart').getContext('2d');
+  pkChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [{
+        data: times.map((t, i) => ({x: t, y: Math.max(0, concs[i])})),
+        borderColor: '#58a6ff',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.3,
+        fill: {target: 'origin', above: 'rgba(88,166,255,0.05)'},
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {duration: 350},
+      scales: {
+        x: {
+          type: 'linear',
+          min: 0, max: cfg.timeWindow,
+          grid: {color: 'rgba(255,255,255,0.04)'},
+          ticks: {
+            color: '#8b949e',
+            stepSize: cfg.xTickStep,
+            maxRotation: 0,
+            callback(v) {
+              if (v % cfg.xTickStep !== 0) return null;
+              return cfg.xUnit === 'd' ? 'J' + (v / 24 + 1) : v + 'h';
+            },
+          },
+          title: {
+            display: true,
+            text: cfg.xUnit === 'd' ? 'Jours' : 'Heures',
+            color: '#8b949e', font: {size: 11},
+          },
+        },
+        y: {
+          min: 0, max: yMax,
+          grid: {color: 'rgba(255,255,255,0.04)'},
+          ticks: {color: '#8b949e'},
+          title: {
+            display: true, text: 'Estradiol sérique (pg/mL)',
+            color: '#8b949e', font: {size: 11},
+          },
+        },
+      },
+      plugins: {
+        legend: {display: false},
+        tooltip: {
+          backgroundColor: '#161b22',
+          borderColor: '#30363d',
+          borderWidth: 1,
+          titleColor: '#e6edf3',
+          bodyColor: '#8b949e',
+          callbacks: {
+            title([item]) {
+              const v = item.parsed.x;
+              return cfg.xUnit === 'd'
+                ? `J${Math.floor(v / 24) + 1} (+${(v % 24).toFixed(0)} h)`
+                : v.toFixed(1) + ' h';
+            },
+            label: item => ' ' + Math.round(item.parsed.y) + ' pg/mL',
+          },
+        },
+        annotation: {
+          annotations: {
+            // Zones colorées
+            z70: {
+              type: 'box', yMin: 70, yMax: 100,
+              backgroundColor: 'rgba(248,81,73,0.09)',
+              borderColor: 'rgba(248,81,73,0.2)', borderWidth: 1,
+            },
+            z100: {
+              type: 'box', yMin: 100, yMax: 200,
+              backgroundColor: 'rgba(63,185,80,0.09)',
+              borderColor: 'rgba(63,185,80,0.2)', borderWidth: 1,
+            },
+            z200: {
+              type: 'box', yMin: 200, yMax: 300,
+              backgroundColor: 'rgba(210,153,34,0.07)',
+              borderColor: 'rgba(210,153,34,0.18)', borderWidth: 1,
+            },
+            // Lignes de seuil
+            l100: {type:'line', yMin:100, yMax:100, borderColor:'rgba(63,185,80,0.5)',  borderWidth:1, borderDash:[4,4]},
+            l200: {type:'line', yMin:200, yMax:200, borderColor:'rgba(210,153,34,0.5)', borderWidth:1, borderDash:[4,4]},
+            l300: {type:'line', yMin:300, yMax:300, borderColor:'rgba(248,81,73,0.5)',  borderWidth:1, borderDash:[4,4]},
+          },
+        },
+      },
+    },
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+//  MÉTRIQUES & NOTES
+// ════════════════════════════════════════════════════════════════
+function updateMetrics(times, concs) {
+  const cfg = ROUTES[currentRoute];
+  const {cmax, ctrough, pctTarget} = computeMetrics(times, concs, cfg.analysisStart);
+
+  // Cmax
+  document.getElementById('m-cmax').textContent = Math.round(cmax) + ' pg/mL';
+
+  // Ctrough
+  const ctEl  = document.getElementById('m-ctrough');
+  const ctSub = document.getElementById('m-ctrough-sub');
+  ctEl.textContent = Math.round(ctrough) + ' pg/mL';
+  if (ctrough >= 100 && ctrough <= 200) {
+    ctEl.style.color = 'var(--reliable)'; ctSub.textContent = '✓ Dans la cible';
+  } else if (ctrough >= 70 && ctrough < 100 && currentRoute === 'sublingual') {
+    ctEl.style.color = 'var(--warning)'; ctSub.textContent = '~ Creux sublingual acceptable';
+  } else if (ctrough > 300) {
+    ctEl.style.color = 'var(--danger)'; ctSub.textContent = '↑ Au-dessus de 300 pg/mL';
+  } else if (ctrough > 200) {
+    ctEl.style.color = 'var(--warning)'; ctSub.textContent = '~ Au-dessus de la cible standard';
+  } else {
+    ctEl.style.color = 'var(--danger)'; ctSub.textContent = '↓ En dessous de la cible';
+  }
+
+  // % temps en cible
+  const pEl  = document.getElementById('m-pct');
+  const pSub = document.getElementById('m-pct-sub');
+  pEl.textContent = pctTarget + ' %';
+  pEl.style.color = pctTarget >= 60
+    ? 'var(--reliable)' : pctTarget >= 25 ? 'var(--warning)' : 'var(--danger)';
+  pSub.textContent = cfg.xUnit === 'd'
+    ? `J${cfg.analysisStart / 24 + 1}–J${cfg.timeWindow / 24 + 1} (état d'équilibre)`
+    : `${cfg.analysisStart}h–${cfg.timeWindow}h`;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  ÉTAT & CONTRÔLES UI
+// ════════════════════════════════════════════════════════════════
+let currentRoute = 'oral';
+let currentDose  = ROUTES.oral.defaultDose;
+let currentFreq  = ROUTES.oral.defaultFreq;
+
+function redraw() {
+  const {times, concs} = computeCurve(currentRoute, currentDose, currentFreq);
+  drawChart(times, concs);
+  updateMetrics(times, concs);
+  document.getElementById('route-note').innerHTML = ROUTE_NOTES[currentRoute];
+}
+
+function buildDosePills() {
+  const cfg = ROUTES[currentRoute];
+  document.getElementById('dose-label').textContent = cfg.doseLabel;
+  const c = document.getElementById('dose-pills');
+  c.innerHTML = '';
+  cfg.doses.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'pill' + (d === currentDose ? ' active' : '');
+    btn.textContent = d + ' ' + cfg.doseUnit;
+    btn.onclick = () => {
+      currentDose = d;
+      c.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      redraw();
+    };
+    c.appendChild(btn);
+  });
+}
+
+function buildFreqPills() {
+  const cfg = ROUTES[currentRoute];
+  const grp = document.getElementById('freq-group');
+  const c   = document.getElementById('freq-pills');
+  if (cfg.freqs.length <= 1) { grp.style.display = 'none'; return; }
+  grp.style.display = '';
+  c.innerHTML = '';
+  cfg.freqs.forEach(f => {
+    const btn = document.createElement('button');
+    btn.className = 'pill' + (f === currentFreq ? ' active' : '');
+    btn.textContent = cfg.freqLabels[f];
+    btn.onclick = () => {
+      currentFreq = f;
+      c.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      redraw();
+    };
+    c.appendChild(btn);
+  });
+}
+
+function switchRoute(key) {
+  currentRoute = key;
+  currentDose  = ROUTES[key].defaultDose;
+  currentFreq  = ROUTES[key].defaultFreq;
+  document.querySelectorAll('.route-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.route === key)
+  );
+  buildDosePills();
+  buildFreqPills();
+  redraw();
+}
+
+document.querySelectorAll('.route-tab').forEach(btn =>
+  btn.addEventListener('click', () => switchRoute(btn.dataset.route))
+);
+
+// Initialisation
+buildDosePills();
+buildFreqPills();
+redraw();
+</script>
+</body>
+</html>
