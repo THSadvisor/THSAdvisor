@@ -1,4 +1,4 @@
-# THSAdvisor
+# THS ToolBox
 
 Ce site est un outil que j'utilise dans ma pratique personnelle de médecin généraliste. 
 
