@@ -266,8 +266,12 @@ const ROUTES = {
 
   // ── Androtardyl (testostérone énanthate 250 mg/mL IM) ────────
   // Dépôt huileux à libération modérée.
-  // ka=0.05/h → Tmax SS ≈ J2–J3 ; ke=0.0035/h → t½ ≈ 8 j.
-  // Calibration SS (3 sem., 250 mg) : Cmax ~28 ng/mL à J2–J3, Ctrough ~6 ng/mL.
+  // ka=0.05/h → Tmax ≈ J2–J3 (57 h) ; ke=0.0035/h → t½ effectif ≈ 8 j (dépôt IM).
+  // Calibration première dose (250 mg, 3 sem.) :
+  //   Cmax ~30 ng/mL à J2–J3 ; Ctrough ~6,8 ng/mL à J21.
+  // nPreDoses=0 : courbe part de 0 — accumulation naturelle visible cycle après cycle.
+  //   Creux SS théorique ~8,1 ng/mL (stabilisation progressive attendue).
+  // analysisStart = J14 pour exclure le transitoire initial du calcul des métriques.
   androtardyl: {
     label: 'Androtardyl',
     fullLabel: 'Testostérone énanthate IM (Androtardyl 250 mg/mL)',
@@ -281,9 +285,9 @@ const ROUTES = {
     ],
     defaultTau: 3 * 7 * 24,
     mgPerUnit: 1,
-    ka: 0.05, ke: 0.0035, scale: 0.120,
-    nPreDoses: 5,
-    timeWindow: 56 * 24, dt: 1, analysisStart: 0,
+    ka: 0.05, ke: 0.0035, scale: 0.158,
+    nPreDoses: 0,
+    timeWindow: 56 * 24, dt: 1, analysisStart: 14 * 24,
     xTickStep: 7 * 24, xUnit: 'd',
   },
 
