@@ -240,8 +240,11 @@ const ROUTES = {
 
   // ── Nébido (testostérone undécanoate 1000 mg IM) ─────────────
   // Dépôt huileux à libération très lente.
-  // ka=0.015/h → pic à ~J8 ; ke=0.001/h → t½≈29 j (réservoir dépôt).
-  // Calibration : Cmax ~25 ng/mL, Ctrough à 12 sem. ~4,4 ng/mL.
+  // ka=0.012/h → Tmax SS ≈ J14 ; ke=0.000254/h (t½ effectif ≈ 114 j).
+  // Le ke "effectif" est plus lent que le ke plasmatique car la libération
+  // du dépôt huileux limite la chute — cohérent avec les profils cliniques publiés.
+  // Calibration SS (12 sem.) : Cmax ~7–8 ng/mL à J14, Ctrough ~4–5 ng/mL.
+  // nPreDoses : doses fantômes avant t=0 pour démarrer directement à l'état d'équilibre.
   nebido: {
     label: 'Nébido',
     fullLabel: 'Testostérone undécanoate IM (Nébido 1000 mg/4 mL)',
@@ -255,15 +258,16 @@ const ROUTES = {
     ],
     defaultTau: 12 * 7 * 24,
     mgPerUnit: 1,
-    ka: 0.015, ke: 0.001, scale: 0.033,
+    ka: 0.012, ke: 0.000254, scale: 0.0033,
+    nPreDoses: 15,
     timeWindow: 100 * 24, dt: 4, analysisStart: 0,
     xTickStep: 10 * 24, xUnit: 'd',
   },
 
   // ── Androtardyl (testostérone énanthate 250 mg/mL IM) ────────
   // Dépôt huileux à libération modérée.
-  // ka=0.04/h → pic à ~J2,7 ; ke=0.004/h → t½≈7 j (dépôt ester).
-  // Calibration : 250 mg → Cmax ~31 ng/mL, Ctrough à 3 sem. ~6 ng/mL.
+  // ka=0.05/h → Tmax SS ≈ J2–J3 ; ke=0.0035/h → t½ ≈ 8 j.
+  // Calibration SS (3 sem., 250 mg) : Cmax ~28 ng/mL à J2–J3, Ctrough ~6 ng/mL.
   androtardyl: {
     label: 'Androtardyl',
     fullLabel: 'Testostérone énanthate IM (Androtardyl 250 mg/mL)',
@@ -277,14 +281,14 @@ const ROUTES = {
     ],
     defaultTau: 3 * 7 * 24,
     mgPerUnit: 1,
-    ka: 0.04, ke: 0.004, scale: 0.18,
+    ka: 0.05, ke: 0.0035, scale: 0.120,
+    nPreDoses: 5,
     timeWindow: 56 * 24, dt: 1, analysisStart: 0,
     xTickStep: 7 * 24, xUnit: 'd',
   },
 
   // ── Androgel (gel 1,62 %, 20,25 mg/pompe) ───────────────────
-  // Profil transdermique stable, identique au modèle gel Œstradiol.
-  // ka=0.1/h, ke=0.05/h. Calibration : 4 pompes (81 mg/j) → SS 4,8–6,4 ng/mL.
+  // ka=0.1/h, ke=0.05/h. Calibration : 2 pompes (40,5 mg/j) → SS ~5–7 ng/mL.
   androgel: {
     label: 'Androgel',
     fullLabel: 'Androgel (testostérone gel 1,62 %, 20,25 mg/pompe)',
@@ -293,7 +297,8 @@ const ROUTES = {
     hasSelector: false, selectorLabel: null,
     selectors: [], defaultTau: 24,
     mgPerUnit: 20.25,
-    ka: 0.1, ke: 0.05, scale: 0.18,
+    ka: 0.1, ke: 0.05, scale: 0.36,
+    nPreDoses: 10,
     timeWindow: 14 * 24, dt: 1, analysisStart: 5 * 24,
     xTickStep: 24, xUnit: 'd',
   },
@@ -306,11 +311,13 @@ const ROUTE_NOTES = {
   nebido:
     `<strong>Quand doser ?</strong>
     Au milieu de l'intervalle, soit environ <strong>6 semaines après l'injection</strong>.
-    Éviter de doser au pic (J7–J10) ou au creux extrême juste avant la prochaine injection —
+    Éviter de doser au pic (J10–J14) ou au creux juste avant la prochaine injection —
     ces valeurs ne sont pas représentatives des taux moyens.<br><br>
-    La courbe illustre la <strong>grande amplitude pic-creux</strong> caractéristique de Nébido :
-    les concentrations dépassent souvent 20 ng/mL en pic et peuvent passer sous 4 ng/mL
-    en fin d'intervalle à 12–14 semaines. Ajuster l'intervalle en conséquence.`,
+    À l'état d'équilibre, le pic est attendu à <strong>~7–8 ng/mL vers J10–J14</strong>,
+    puis les concentrations redescendent progressivement jusqu'à <strong>~4–5 ng/mL</strong>
+    en fin d'intervalle à 12 semaines. L'amplitude pic-creux reste modérée grâce à la
+    libération lente et continue du dépôt huileux — raccourcir l'intervalle si le creux
+    passe sous 4 ng/mL.`,
 
   androtardyl:
     `<strong>Quand doser ?</strong>
@@ -346,10 +353,16 @@ function computeCurve(routeKey, doseValue, tauHours) {
   const times = Array.from({length: N}, (_, i) => i * dt);
   const concs  = new Array(N).fill(0);
 
-  const nDoses  = Math.floor(T / tauHours) + 1;
-  const dose_mg = doseValue * cfg.mgPerUnit;
+  const nPreDoses = cfg.nPreDoses || 0;
+  const nDoses    = Math.floor(T / tauHours) + 1;
+  const dose_mg   = doseValue * cfg.mgPerUnit;
 
   times.forEach((t, i) => {
+    // Pré-doses (t < 0) pour démarrer directement à l'état d'équilibre
+    for (let d = 1; d <= nPreDoses; d++) {
+      concs[i] += biexp(cfg.ka, cfg.ke, cfg.scale, dose_mg, t + d * tauHours);
+    }
+    // Doses dans la fenêtre de simulation (t ≥ 0)
     for (let d = 0; d < nDoses; d++) {
       const tn = d * tauHours;
       if (t >= tn) concs[i] += biexp(cfg.ka, cfg.ke, cfg.scale, dose_mg, t - tn);
