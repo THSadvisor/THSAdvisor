@@ -287,7 +287,9 @@ const ROUTES = {
     mgPerUnit: 1,
     ka: 0.05, ke: 0.0035, scale: 0.158,
     nPreDoses: 0,
-    timeWindow: 56 * 24, dt: 1, analysisStart: 14 * 24,
+    metricsMode: 'firstcycle',   // Cmax/Ctrough = 1er cycle ; pctTarget = fenêtre complète
+    pctLabel: '2 cycles (42 jours)',
+    timeWindow: 42 * 24, dt: 1, analysisStart: 0,
     xTickStep: 7 * 24, xUnit: 'd',
   },
 
@@ -376,8 +378,25 @@ function computeCurve(routeKey, doseValue, tauHours) {
   return {times, concs};
 }
 
-function computeMetrics(times, concs, analysisStart) {
-  const pts = times.map((t, i) => ({t, c: concs[i]})).filter(p => p.t >= analysisStart);
+function computeMetrics(times, concs, cfg, tauHours) {
+  if (cfg.metricsMode === 'firstcycle') {
+    // Cmax : maximum sur le 1er cycle (t > 0 … tau)
+    const firstCycleVals = times
+      .map((t, i) => ({t, c: concs[i]}))
+      .filter(p => p.t > 0 && p.t <= tauHours)
+      .map(p => p.c);
+    const cmax = firstCycleVals.length ? Math.max(...firstCycleVals) : 0;
+    // Ctrough : valeur au creux de fin de 1er cycle (t = tau, juste avant la 2e injection)
+    const tIdx = Math.round(tauHours / cfg.dt);
+    const ctrough = tIdx < concs.length ? concs[tIdx] : 0;
+    // pctTarget : sur la fenêtre complète affichée
+    const pctTarget = Math.round(
+      100 * concs.filter(c => c >= 4 && c <= 7).length / concs.length
+    );
+    return { cmax, ctrough, pctTarget };
+  }
+  // Comportement standard (Nébido, Androgel)
+  const pts = times.map((t, i) => ({t, c: concs[i]})).filter(p => p.t >= cfg.analysisStart);
   if (!pts.length) return {cmax: 0, ctrough: 0, pctTarget: 0};
   const vals = pts.map(p => p.c);
   return {
@@ -476,7 +495,7 @@ function drawChart(times, concs) {
 // ════════════════════════════════════════════════════════════════
 function updateMetrics(times, concs) {
   const cfg = ROUTES[currentRoute];
-  const {cmax, ctrough, pctTarget} = computeMetrics(times, concs, cfg.analysisStart);
+  const {cmax, ctrough, pctTarget} = computeMetrics(times, concs, cfg, currentTau);
 
   // Cmax
   document.getElementById('m-cmax').textContent = cmax.toFixed(1) + ' ng/mL';
@@ -505,9 +524,11 @@ function updateMetrics(times, concs) {
 
   const aStart = cfg.analysisStart;
   const aEnd   = cfg.timeWindow;
-  pSub.textContent = aStart > 0
-    ? `J${Math.round(aStart/24)}–J${Math.round(aEnd/24)} (état d'équilibre)`
-    : `J0–J${Math.round(aEnd/24)}`;
+  pSub.textContent = cfg.pctLabel
+    ? cfg.pctLabel
+    : aStart > 0
+      ? `J${Math.round(aStart/24)}–J${Math.round(aEnd/24)} (état d'équilibre)`
+      : `J0–J${Math.round(aEnd/24)}`;
 }
 
 // ════════════════════════════════════════════════════════════════
