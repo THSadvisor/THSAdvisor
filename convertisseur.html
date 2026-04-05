@@ -22,6 +22,8 @@
       --danger: #f85149;
       --danger-bg: rgba(248, 81, 73, 0.08);
       --danger-border: rgba(248, 81, 73, 0.35);
+      --danger-warm: #e07850;
+      --reliable: #3fb950;
       --radius: 6px;
       --radius-lg: 10px;
     }
@@ -43,16 +45,12 @@
       background: var(--surface);
       font-size: 0.85rem;
     }
-    .topbar a {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 500;
-    }
+    .topbar a { color: var(--accent); text-decoration: none; font-weight: 500; }
     .topbar a:hover { text-decoration: underline; }
     .topbar .sep { color: var(--border); }
     .topbar .current { color: var(--muted); }
     main {
-      max-width: 860px;
+      max-width: 1060px;
       margin: 0 auto;
       padding: 32px 16px 48px;
     }
@@ -60,13 +58,13 @@
       font-size: 1.35rem;
       font-weight: 700;
       margin: 0 0 28px;
-      color: var(--text);
       letter-spacing: -0.01em;
     }
     .modules {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 20px;
+      margin-bottom: 20px;
     }
     .module {
       background: var(--surface);
@@ -75,11 +73,24 @@
       padding: 22px;
     }
     .module h2 {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 600;
-      margin: 0 0 20px;
+      margin: 0 0 18px;
       color: var(--text);
     }
+    .module-tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+      margin-left: 8px;
+      vertical-align: middle;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .tag-f { background: rgba(247,120,186,0.15); color: var(--pink); border: 1px solid rgba(247,120,186,0.3); }
+    .tag-m { background: rgba(88,166,255,0.15);  color: var(--accent); border: 1px solid rgba(88,166,255,0.3); }
     label {
       display: block;
       font-size: 0.75rem;
@@ -101,10 +112,7 @@
       margin-bottom: 14px;
       transition: border-color 0.15s;
     }
-    input[type="number"]:focus, select:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
+    input[type="number"]:focus, select:focus { outline: none; border-color: var(--accent); }
     select option { background: var(--surface2); }
     button {
       width: 100%;
@@ -121,10 +129,9 @@
       margin-bottom: 18px;
     }
     button:hover { opacity: 0.85; }
-    .result-block {
-      border-top: 1px solid var(--border);
-      padding-top: 16px;
-    }
+
+    /* Résultats */
+    .result-block { border-top: 1px solid var(--border); padding-top: 16px; }
     .result-row {
       display: flex;
       justify-content: space-between;
@@ -138,6 +145,8 @@
     .result-row .val { font-weight: 600; font-variant-numeric: tabular-nums; }
     .result-row.primary .unit { color: var(--pink); font-weight: 500; }
     .result-row.primary .val { color: var(--pink); font-size: 1rem; }
+
+    /* Boîte cibles */
     .targets-box {
       margin-top: 14px;
       padding: 12px 14px;
@@ -145,9 +154,39 @@
       border-radius: var(--radius);
       font-size: 0.8rem;
       color: var(--muted);
-      line-height: 1.65;
+      line-height: 1.7;
     }
     .targets-box strong { color: var(--text); }
+
+    /* Interprétation colorée */
+    .interp {
+      margin-top: 10px;
+      padding: 9px 12px;
+      border-radius: var(--radius);
+      font-size: 0.82rem;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .interp.green      { background: rgba(63,185,80,0.1);   color: var(--reliable);    border: 1px solid rgba(63,185,80,0.3); }
+    .interp.amber      { background: rgba(210,153,34,0.1);  color: var(--warning);     border: 1px solid rgba(210,153,34,0.3); }
+    .interp.red        { background: rgba(248,81,73,0.1);   color: var(--danger);      border: 1px solid rgba(248,81,73,0.3); }
+    .interp.orange-red { background: rgba(224,120,80,0.1);  color: var(--danger-warm); border: 1px solid rgba(224,120,80,0.35); }
+    .interp.note       { margin-top: 6px; font-size: 0.76rem; font-weight: 400; color: var(--muted); background: none; border: none; padding: 4px 0 0; }
+
+    /* Note clinique par module */
+    .module-note {
+      margin-top: 14px;
+      padding: 9px 12px;
+      border-left: 3px solid var(--accent);
+      background: var(--surface2);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .module-note strong { color: var(--text); font-weight: 600; }
+
+    /* Alerte permanente */
     .alert-box {
       margin-top: 14px;
       padding: 12px 14px;
@@ -159,11 +198,22 @@
       color: var(--text);
     }
     .alert-box strong { color: var(--warning); }
-    .error-msg {
+
+    /* Note clinique globale */
+    .clinical-note {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
       font-size: 0.82rem;
+      line-height: 1.7;
       color: var(--muted);
-      padding: 8px 0;
     }
+    .clinical-note strong { color: var(--text); }
+    .clinical-note .refs { margin-top: 8px; font-size: 0.74rem; }
+
+    .error-msg { font-size: 0.82rem; color: var(--muted); padding: 8px 0; }
   </style>
 </head>
 <body>
@@ -178,15 +228,15 @@
 
     <div class="modules">
 
-      <!-- ── Testostérone ────────────────────────────── -->
+      <!-- ── Testostérone — THS féminisant ──────────────── -->
       <div class="module">
-        <h2>Testostérone</h2>
+        <h2>Testostérone <span class="module-tag tag-f">THSf</span></h2>
 
-        <label for="testosterone">Valeur</label>
-        <input type="number" id="testosterone" placeholder="Entrez la valeur" min="0" step="any">
+        <label for="testo-f-val">Valeur</label>
+        <input type="number" id="testo-f-val" placeholder="Entrez la valeur" min="0" step="any">
 
-        <label for="testosterone-unit">Unité</label>
-        <select id="testosterone-unit">
+        <label for="testo-f-unit">Unité</label>
+        <select id="testo-f-unit">
           <option value="nmol/L">nmol/L</option>
           <option value="ng/dL">ng/dL</option>
           <option value="ng/mL">ng/mL</option>
@@ -194,24 +244,30 @@
           <option value="µg/L">µg/L</option>
         </select>
 
-        <button onclick="convertTestosterone()">Convertir</button>
+        <button onclick="convertTestoF()">Convertir</button>
 
-        <div id="testosterone-result"></div>
+        <div id="testo-f-result"></div>
 
         <div class="alert-box">
-          <strong>⚠ Bicalutamide :</strong> la testostérone totale n'est <em>pas interprétable</em>
-          chez une patiente sous bicalutamide — ce médicament est un antagoniste des récepteurs
-          aux androgènes et ne supprime pas la production de testostérone. Le dosage reste élevé
+          <strong>⚠ Non interprétable sous bicalutamide.</strong>
+          La testostérone totale n'est <em>pas interprétable</em>
+          chez une patiente sous bicalutamide — antagoniste des récepteurs aux androgènes
+          sans suppression de la production. Le dosage reste élevé
           même si l'effet androgénique est bloqué.
+        </div>
+        <div class="module-note">
+          <strong>Rappel :</strong> le ressenti clinique prime toujours sur les valeurs biologiques.
+          Ces seuils sont des repères, non des objectifs rigides.
+          L'ajustement se fait toujours au cas par cas avec la patiente ou le patient.
         </div>
       </div>
 
-      <!-- ── Œstradiol ───────────────────────────────── -->
+      <!-- ── Œstradiol — THS féminisant ────────────────── -->
       <div class="module">
-        <h2>Œstradiol</h2>
+        <h2>Œstradiol <span class="module-tag tag-f">THSf</span></h2>
 
-        <label for="oestradiol">Valeur</label>
-        <input type="number" id="oestradiol" placeholder="Entrez la valeur" min="0" step="any">
+        <label for="oestradiol-val">Valeur</label>
+        <input type="number" id="oestradiol-val" placeholder="Entrez la valeur" min="0" step="any">
 
         <label for="oestradiol-unit">Unité</label>
         <select id="oestradiol-unit">
@@ -224,8 +280,46 @@
         <button onclick="convertOestradiol()">Convertir</button>
 
         <div id="oestradiol-result"></div>
+        <div class="module-note">
+          <strong>Rappel :</strong> le ressenti clinique prime toujours sur les valeurs biologiques.
+          Ces seuils sont des repères, non des objectifs rigides.
+          L'ajustement se fait toujours au cas par cas avec la patiente ou le patient.
+        </div>
       </div>
 
+      <!-- ── Testostérone — THS masculinisant ─────────── -->
+      <div class="module">
+        <h2>Testostérone <span class="module-tag tag-m">THSm</span></h2>
+
+        <label for="testo-m-val">Valeur</label>
+        <input type="number" id="testo-m-val" placeholder="Entrez la valeur" min="0" step="any">
+
+        <label for="testo-m-unit">Unité</label>
+        <select id="testo-m-unit">
+          <option value="ng/mL">ng/mL</option>
+          <option value="ng/dL">ng/dL</option>
+          <option value="nmol/L">nmol/L</option>
+        </select>
+
+        <button onclick="convertTestoM()">Convertir</button>
+
+        <div id="testo-m-result"></div>
+        <div class="module-note">
+          <strong>Rappel :</strong> le ressenti clinique prime toujours sur les valeurs biologiques.
+          Ces seuils sont des repères, non des objectifs rigides.
+          L'ajustement se fait toujours au cas par cas avec la patiente ou le patient.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Note clinique globale ─────────────────────────── -->
+    <div class="clinical-note">
+      <strong>Le ressenti clinique prime toujours sur les valeurs biologiques.</strong>
+      Ces seuils sont des repères, non des objectifs rigides.
+      L'ajustement thérapeutique se fait toujours au cas par cas avec la patiente ou le patient,
+      en tenant compte de la clinique, du ressenti, et du contexte global.
+      <div class="refs">Réf. : SOC8 WPATH 2022 · Fransgenre / biyokea 2025</div>
     </div>
   </main>
 
@@ -235,14 +329,19 @@
       return (v % 1 === 0) ? v.toString() : parseFloat(v.toFixed(4)).toString();
     }
 
-    function convertTestosterone() {
-      const value = parseFloat(document.getElementById('testosterone').value);
-      const unit  = document.getElementById('testosterone-unit').value;
-      const el    = document.getElementById('testosterone-result');
+    function interpBox(cls, icon, text, note) {
+      const noteHtml = note ? `<div class="interp note">${note}</div>` : '';
+      return `<div class="interp ${cls}">${icon} ${text}</div>${noteHtml}`;
+    }
+
+    // ── Testostérone THSf ────────────────────────────────────
+    function convertTestoF() {
+      const value = parseFloat(document.getElementById('testo-f-val').value);
+      const unit  = document.getElementById('testo-f-unit').value;
+      const el    = document.getElementById('testo-f-result');
 
       if (isNaN(value) || value < 0) {
-        el.innerHTML = '<p class="error-msg">Entrez une valeur valide.</p>';
-        return;
+        el.innerHTML = '<p class="error-msg">Entrez une valeur valide.</p>'; return;
       }
 
       let ngml;
@@ -252,29 +351,29 @@
       else if (unit === 'ng/L')   ngml = value / 1000;
       else if (unit === 'µg/L')   ngml = value;
 
-      const ngl    = ngml * 1000;
-      const ugl    = ngml;          // µg/L = ng/mL numerically
-      const nmoll  = ngml / 0.288;
-      const ngdl   = ngml * 100;
+      const ngdl  = ngml * 100;
+      const nmoll = ngml / 0.288;
+      const ngl   = ngml * 1000;
+      const ugl   = ngml;
 
-      // Interprétation cible THSf
-      let interp = '';
-      if (ngml < 0.30)
-        interp = '<span style="color:#3fb950">✓ Dans la cible préférentielle (&lt; 0,30 ng/mL)</span>';
-      else if (ngml < 0.50)
-        interp = '<span style="color:#d29922">~ Acceptable (0,30–0,50 ng/mL)</span>';
+      let interp;
+      if (ngdl < 30)
+        interp = interpBox('green', '✓', 'Dans la cible (&lt; 30 ng/dL)');
+      else if (ngdl < 50)
+        interp = interpBox('amber', '~', 'Acceptable (30–50 ng/dL)');
       else
-        interp = '<span style="color:#f85149">↑ Au-dessus de la cible (&gt; 0,50 ng/mL)</span>';
+        interp = interpBox('red', '↑', 'Au-dessus de la cible (&gt; 50 ng/dL)',
+          'Envisager ajustement posologique ou changement d\'anti-androgène.');
 
       el.innerHTML = `
         <div class="result-block">
           <div class="result-row primary">
-            <span class="unit">ng/mL</span>
-            <span class="val">${fmt(ngml)}</span>
-          </div>
-          <div class="result-row">
             <span class="unit">ng/dL</span>
             <span class="val">${fmt(ngdl)}</span>
+          </div>
+          <div class="result-row">
+            <span class="unit">ng/mL</span>
+            <span class="val">${fmt(ngml)}</span>
           </div>
           <div class="result-row">
             <span class="unit">nmol/L</span>
@@ -289,22 +388,21 @@
             <span class="val">${fmt(ugl)}</span>
           </div>
           <div class="targets-box">
-            <strong>THSf :</strong> &lt; 0,30 ng/mL préférable — &lt; 0,50 ng/mL acceptable<br>
-            <strong>THSm :</strong> 2,5–9 ng/mL<br>
-            <br>
-            ${interp}
+            <strong>Cibles THSf :</strong><br>
+            &lt; 30 ng/dL (préférable) — &lt; 50 ng/dL (acceptable)
           </div>
+          ${interp}
         </div>`;
     }
 
+    // ── Œstradiol THSf ───────────────────────────────────────
     function convertOestradiol() {
-      const value = parseFloat(document.getElementById('oestradiol').value);
+      const value = parseFloat(document.getElementById('oestradiol-val').value);
       const unit  = document.getElementById('oestradiol-unit').value;
       const el    = document.getElementById('oestradiol-result');
 
       if (isNaN(value) || value < 0) {
-        el.innerHTML = '<p class="error-msg">Entrez une valeur valide.</p>';
-        return;
+        el.innerHTML = '<p class="error-msg">Entrez une valeur valide.</p>'; return;
       }
 
       let pgml;
@@ -317,16 +415,15 @@
       const pgdl  = pgml * 100;
       const ngl   = pgml;
 
-      // Interprétation cible THSf
-      let interp = '';
+      let interp;
       if (pgml < 100)
-        interp = '<span style="color:#f85149">↓ Sous la cible (&lt; 100 pg/mL)</span>';
+        interp = interpBox('red', '↓', 'En dessous de la cible (&lt; 100 pg/mL)');
       else if (pgml <= 200)
-        interp = '<span style="color:#3fb950">✓ Zone cible standard (100–200 pg/mL)</span>';
+        interp = interpBox('green', '✓', 'Dans la cible (100–200 pg/mL)');
       else if (pgml <= 300)
-        interp = '<span style="color:#d29922">~ Acceptable — voie non-orale, sans FDRTEV majeur (200–300 pg/mL)</span>';
+        interp = interpBox('amber', '~', 'Acceptable — voie non-orale, sans FDRTEV majeur (200–300 pg/mL)');
       else
-        interp = '<span style="color:#f85149">↑ Au-dessus de la zone acceptable (&gt; 300 pg/mL)</span>';
+        interp = interpBox('orange-red', '↑', 'Au-dessus de la cible (&gt; 300 pg/mL)');
 
       el.innerHTML = `
         <div class="result-block">
@@ -347,11 +444,60 @@
             <span class="val">${fmt(ngl)}</span>
           </div>
           <div class="targets-box">
-            <strong>THSf :</strong> 100–200 pg/mL (cible standard)<br>
-            200–300 pg/mL acceptable (voie non-orale, sans FDRTEV majeur)<br>
-            <br>
-            ${interp}
+            <strong>Cibles THSf :</strong><br>
+            100–200 pg/mL (standard) — 200–300 pg/mL acceptable (voie non-orale, sans FDRTEV majeur)
           </div>
+          ${interp}
+        </div>`;
+    }
+
+    // ── Testostérone THSm ────────────────────────────────────
+    function convertTestoM() {
+      const value = parseFloat(document.getElementById('testo-m-val').value);
+      const unit  = document.getElementById('testo-m-unit').value;
+      const el    = document.getElementById('testo-m-result');
+
+      if (isNaN(value) || value < 0) {
+        el.innerHTML = '<p class="error-msg">Entrez une valeur valide.</p>'; return;
+      }
+
+      let ngml;
+      if      (unit === 'ng/mL')  ngml = value;
+      else if (unit === 'ng/dL')  ngml = value * 0.01;
+      else if (unit === 'nmol/L') ngml = value * 0.288;
+
+      const ngdl  = ngml * 100;
+      const nmoll = ngml / 0.288;
+
+      let interp;
+      if (ngml < 4)
+        interp = interpBox('red',   '↓', 'En dessous de la cible (&lt; 4 ng/mL)');
+      else if (ngml <= 7)
+        interp = interpBox('green', '✓', 'Dans la cible (4–7 ng/mL)');
+      else if (ngml <= 9)
+        interp = interpBox('amber', '~', 'Acceptable selon ressenti clinique (7–9 ng/mL)');
+      else
+        interp = interpBox('red',   '↑', 'Au-dessus de la cible (&gt; 9 ng/mL)');
+
+      el.innerHTML = `
+        <div class="result-block">
+          <div class="result-row primary">
+            <span class="unit">ng/mL</span>
+            <span class="val">${fmt(ngml)}</span>
+          </div>
+          <div class="result-row">
+            <span class="unit">ng/dL</span>
+            <span class="val">${fmt(ngdl)}</span>
+          </div>
+          <div class="result-row">
+            <span class="unit">nmol/L</span>
+            <span class="val">${fmt(nmoll)}</span>
+          </div>
+          <div class="targets-box">
+            <strong>Cibles THSm :</strong><br>
+            4–7 ng/mL (standard) — 7–9 ng/mL acceptable selon ressenti
+          </div>
+          ${interp}
         </div>`;
     }
   </script>
